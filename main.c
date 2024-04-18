@@ -1,5 +1,5 @@
-#include "syntax_tree.h"
-#include "syntax.tab.h"
+#include "main.h"
+#include "parser.tab.h"
 
 // 用于遍历
 int i;

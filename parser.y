@@ -1,7 +1,7 @@
 %{
 #include<unistd.h>
 #include<stdio.h>   
-#include "syntax_tree.h"
+#include "main.h"
 int yylex();
 %}
 %union{

@@ -4,8 +4,8 @@
 %{
 	#include <stdlib.h>
 	#include <stdio.h>
-    #include "syntax_tree.h"
-    #include "syntax.tab.h"
+    #include "main.h"
+    #include "parser.tab.h"
 
 	#define ASTRETURN(a) yylval.type_tnode=newAst(#a,0,yylineno);return a
 %}
