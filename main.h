@@ -38,12 +38,9 @@ Ast newAst(char* name,int num,...);
 void Preorder(Ast ast,int level);
 
 // 所有节点数量
-int nodeNum;
+extern int nodeNum;
 // 存放所有节点
-tnode nodeList[5000];
-int nodeIsChild[5000];
-// 设置节点打印状态
-void setChildTag(tnode node);
+extern tnode nodeList[5000];
 
 // bison是否有词法语法错误
-int hasFault;
+extern int hasFault;

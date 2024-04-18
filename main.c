@@ -4,6 +4,10 @@
 // 用于遍历
 int i;
 
+int nodeNum;
+int hasFault;
+tnode nodeList[5000];
+
 Ast newAst(char *name, int num, ...) {
     // 生成父节点
     tnode father = (tnode) malloc(sizeof(struct treeNode));
@@ -112,14 +116,14 @@ void yyerror(char *msg) {
 }
 
 // 设置节点打印状态 该节点为子节点
-void setChildTag(tnode node) {
-    int i;
-    for (i = 0; i < nodeNum; i++) {
-        if (nodeList[i] == node) {
-            nodeIsChild[i] = 1;
-        }
-    }
-}
+// void setChildTag(tnode node) {
+//     int i;
+//     for (i = 0; i < nodeNum; i++) {
+//         if (nodeList[i] == node) {
+//             nodeIsChild[i] = 1;
+//         }
+//     }
+// }
 
 // 主函数 扫描文件并且分析
 // 为bison会自己调用yylex()，所以在main函数中不需要再调用它了
@@ -134,7 +138,6 @@ int main(int argc, char **argv) {
         // 初始化节点记录列表
         nodeNum = 0;
         memset(nodeList, 0, sizeof(tnode) * 5000);
-        memset(nodeIsChild, 0, sizeof(int) * 5000);
         hasFault = 0;
 
         FILE *f = fopen(argv[i], "r");
