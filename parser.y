@@ -12,7 +12,7 @@ int yylex();
 /*声明记号*/
 %token <type_tnode> INTC CHARC ID
 %token <type_tnode> PROGRAM PROCEDURE TYPE VAR IF THEN ELSE FI WHILE DO ENDWH BEGIN1 END READ WRITE ARRAY OF RECORD RETURN INTEGER CHAR
-%token <type_tnode> SEMI COMMA ASSIGN PLUS MINUS TIMES DIV DOT NOT LPAREN RPAREN LMIDPAREN RMINPAREN RELOP UNDERANGE
+%token <type_tnode> SEMI COMMA ASSIGN PLUS MINUS TIMES DIV DOT NOT LPAREN RPAREN LMIDPAREN RMIDPAREN RELOP UNDERANGE
 %token <type_tnode> COMMENT SPACE EOL AERROR
 
 //总程序
@@ -56,7 +56,7 @@ int yylex();
 %left PLUS MINUS
 %left TIMES DIV
 %right NOT
-%left LPAREN RPAREN LMIDPAREN RMINPAREN DOT
+%left LPAREN RPAREN LMIDPAREN RMIDPAREN DOT
 
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
@@ -73,9 +73,9 @@ ProgramName:ID{$$=newAst("ProgramName",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 DeclarePart:TypeDecpart VarDecpart ProcDecpart{$$=newAst("DeclarePart",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
 
 TypeDecpart:{$$=newAst("TypeDecpart",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
-    |TypeDec{$$=newAst("TypeDecPart",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
+    |TypeDec{$$=newAst("TypeDecpart",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 TypeDec:TYPE TypeDecList{$$=newAst("TypeDec",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
-TypeDecList:TypeId ASSIGN TypeDef SEMI TypeDecMore{$$=newAst("TypeDecList",5,$1,$2,$3,$4,$5);nodeList[nodeNum]=$$;nodeNum++;}
+TypeDecList:TypeId RELOP TypeDef SEMI TypeDecMore{$$=newAst("TypeDecList",5,$1,$2,$3,$4,$5);nodeList[nodeNum]=$$;nodeNum++;}
 TypeDecMore:{$$=newAst("TypeDecMore",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
     |TypeDecList{$$=newAst("TypeDecMore",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 TypeId:ID{$$=newAst("TypeId",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
@@ -88,7 +88,7 @@ BaseType:INTEGER{$$=newAst("BaseType",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 StructureType:ArrayType{$$=newAst("StructureType",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
     | RecType{$$=newAst("StructureType",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 //ArrayType:ARRAY '['Low'..'Top']' OF BaseType
-ArrayType:ARRAY LMIDPAREN Low UNDERANGE Top RMINPAREN OF BaseType{$$=newAst("ArrayType",8,$1,$2,$3,$4,$5,$6,$7,$8);nodeList[nodeNum]=$$;nodeNum++;}
+ArrayType:ARRAY LMIDPAREN Low UNDERANGE Top RMIDPAREN OF BaseType{$$=newAst("ArrayType",8,$1,$2,$3,$4,$5,$6,$7,$8);nodeList[nodeNum]=$$;nodeNum++;}
 Low:INTC{$$=newAst("Low",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 Top:INTC{$$=newAst("Top",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 RecType: RECORD FieldDecList END{$$=newAst("RecType",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
@@ -101,7 +101,7 @@ IdMore:{$$=newAst("IdMore",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
     |COMMA IdList{$$=newAst("IdMore",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
 
 VarDecpart:{$$=newAst("VarDecpart",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
-    |VarDec{$$=newAst("VarDecPart",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
+    |VarDec{$$=newAst("VarDecpart",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 VarDec:VAR VarDecList{$$=newAst("VarDec",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
 VarDecList:TypeDef VarIdList SEMI VarDecMore{$$=newAst("VarDecList",4,$1,$2,$3,$4);nodeList[nodeNum]=$$;nodeNum++;}
 VarDecMore:{$$=newAst("VarDecMore",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
@@ -170,11 +170,11 @@ Factor:LPAREN Exp RPAREN{$$=newAst("Factor",3,$1,$2,$3);nodeList[nodeNum]=$$;nod
     |Varible{$$=newAst("Factor",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 Varible:ID VariMore{$$=newAst("Varible",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
 VariMore:{$$=newAst("VariMore",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
-    |LMIDPAREN Exp RMINPAREN{$$=newAst("VariMore",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
+    |LMIDPAREN Exp RMIDPAREN{$$=newAst("VariMore",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
     |DOT FieldVar{$$=newAst("VariMore",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
 FieldVar:ID FieldVarMode{$$=newAst("FieldVar",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
 FieldVarMode:{$$=newAst("FieldVarMode",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
-    |LMIDPAREN Exp RMINPAREN{$$=newAst("FieldVarMode",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
+    |LMIDPAREN Exp RMIDPAREN{$$=newAst("FieldVarMode",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
 CmpOp:RELOP{$$=newAst("CmpOp",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 AddOp:PLUS{$$=newAst("AddOp",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
     |MINUS{$$=newAst("AddOp",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
