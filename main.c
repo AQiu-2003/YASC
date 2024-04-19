@@ -216,7 +216,7 @@ void newtype(int num, ...){
     temp=va_arg(valist,tnode);
     res->type=temp->content;
     temp=va_arg(valist,tnode);
-    res->name=res;
+    res->name=temp->content;
 
     typetail->next=res;
     typetail=res;
@@ -224,8 +224,8 @@ void newtype(int num, ...){
 // 查询是否已经定义
 int findtype(tnode val){
 
-type *temp=(type *)malloc(sizeof(type*));
-    temp=varhead->next;
+    type *temp=(type *)malloc(sizeof(type*));
+    temp=typehead->next;
     while (temp!=NULL)
     {
         if(!strcmp(temp->name,val->content)){
@@ -244,7 +244,7 @@ type *temp=(type *)malloc(sizeof(type*));
  }
  char *typetype(tnode val){
     type* temp=(type*)malloc(sizeof(type*));
-    temp=varhead->next;
+    temp=typehead->next;
     while (temp!=NULL)
     {
         if(!strcmp(temp->name,val->content)){
