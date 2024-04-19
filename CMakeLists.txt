@@ -9,20 +9,22 @@ find_package(FLEX REQUIRED)
 
 bison_target(
         parser
-        parser.y
+        src/parser.y
         ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.c
         COMPILE_FLAGS "-d"
 )
 flex_target(
         scanner
-        scanner.l
+        src/scanner.l
         ${CMAKE_CURRENT_BINARY_DIR}/scanner.yy.c
 )
 add_flex_bison_dependency(scanner parser)
+
+include_directories(src)
 
 add_executable(
         YASC
         ${BISON_parser_OUTPUTS}
         ${FLEX_scanner_OUTPUTS}
-        main.c
+        src/main.c
 )

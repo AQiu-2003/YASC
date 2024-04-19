@@ -364,7 +364,7 @@ int numfunc(tnode val) {
         }
         temp = temp->next;
     }
-
+    return 0;
 }
 
 
