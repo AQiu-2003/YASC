@@ -188,7 +188,7 @@ int findvar(tnode val){
     temp=varhead->next;
     while (temp!=NULL)
     {
-        if(!strcmp(temp->name,val->name)){
+        if(!strcmp(temp->name,val->content)){
             return 1;
         }
         temp=temp->next;
@@ -213,10 +213,51 @@ int checkleft(tnode val);
 
 type *typehead,*typetail;
 // 建立类型符号表
- void newtype(int num,...);
+ void newtype(int num,...){
+    va_list valist;
+    va_start(valist,num);
+    type* res=(type*)malloc(sizeof(type));
+    tnode temp=(tnode)malloc(sizeof(tnode));
+    temp=va_arg(valist,tnode);
+    res->type=temp->content;
+    temp=va_arg(valist,tnode);
+    res->name=res;
+
+    typetail->next=res;
+    typetail=res;
+ }
 // 查询是否已经定义
- int findtype(tnode val);
- char *typetype(tnode val);
+ int findtype(tnode val){
+    type *temp=(type *)malloc(sizeof(type*));
+    temp=varhead->next;
+    while (temp!=NULL)
+    {
+        if(!strcmp(temp->name,val->content)){
+            return 1;
+        }
+        temp=temp->next;
+    }
+    while (temp!=NULL)
+    {
+        if(!strcmp(temp->type,val->content)){
+            return 1;
+        }
+        temp=temp->next;
+    }
+    return 0;
+ }
+ char *typetype(tnode val){
+    type* temp=(type*)malloc(sizeof(type*));
+    temp=varhead->next;
+    while (temp!=NULL)
+    {
+        if(!strcmp(temp->name,val->content)){
+            return temp->type;
+        }
+        temp=temp->next;
+    }
+    return NULL;
+ }
 
 func *funchead,*functail;
 // 记录函数实参
