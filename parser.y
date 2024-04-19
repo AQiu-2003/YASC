@@ -167,6 +167,7 @@ OtherFactor:{$$=newAst("OtherFactor",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
     |MultOP Term{$$=newAst("OtherFactor",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
 Factor:LPAREN Exp RPAREN{$$=newAst("Factor",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
     |INTC{$$=newAst("Factor",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
+    |CHARC{$$=newAst("Factor",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
     |Varible{$$=newAst("Factor",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 Varible:ID VariMore{$$=newAst("Varible",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
 VariMore:{$$=newAst("VariMore",0,-1);nodeList[nodeNum]=$$;nodeNum++;}

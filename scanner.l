@@ -12,8 +12,8 @@
 
 /*无符号整数*/
 INTC 0|[1-9][0-9]*
-/*字符*/
-CHARC '[a-z,0-9]'
+/*ASCII字符*/
+CHARC \'[a-zA-Z0-9@#$%^&*()_+|~`{}:"<>?/.,';\[\]\\-]\'
 /*标识符*/
 ID [a-z][a-z0-9]*
 
@@ -120,7 +120,7 @@ AERROR .
  /*错误*/
 {AERROR} {
 	hasFault=1;
-	printf("Error type A at line %d: Mystirious charachter '%s'\n",yylineno,yytext);
+	fprintf(stderr, "Lexical Error [Line %d]: Mystirious charachter '%s'\n",yylineno,yytext);
 }
 
 %%

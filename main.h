@@ -27,7 +27,7 @@ typedef struct treeNode{
         char* id_type;
         // 具体的数值
         int intval;
-        float fltval;
+        char charval;
     };
 }* Ast,* tnode;
 

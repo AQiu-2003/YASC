@@ -4,7 +4,8 @@ char  c;
 
 procedure f();
 begin
-    v1 :=2
+    v1 := 2;
+    c := 'a'
 end
 
 procedure t1();

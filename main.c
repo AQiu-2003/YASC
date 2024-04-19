@@ -64,12 +64,12 @@ Ast newAst(char *name, int num, ...) {
             str = (char *) malloc(sizeof(char) * 40);
             strcpy(str, yytext);
             father->id_type = str;
-            // father->id_type = (char*)malloc(sizeof(char)*40);
-            // strcpy(father->id_type,yytext);
-        } else if (!strcmp(name, "INT")) {
+        } else if (!strcmp(name, "INTC")) {
             father->intval = atoi(yytext);
+        } else if (!strcmp(name, "CHARC")) {
+            father->charval = yytext[1];
         } else {
-            father->fltval = atof(yytext);
+            father->id_type = NULL;
         }
     }
     return father;
@@ -91,10 +91,10 @@ void Preorder(Ast ast, int level) {
             // 根据不同类型打印节点数据
             if ((!strcmp(ast->name, "ID")) || (!strcmp(ast->name, "TYPE"))) {
                 printf(": %s", ast->id_type);
-            } else if (!strcmp(ast->name, "INT")) {
+            } else if (!strcmp(ast->name, "INTC")) {
                 printf(": %d", ast->intval);
-            } else if (!strcmp(ast->name, "FLOAT")) {
-                printf(": %f", ast->fltval);
+            } else if (!strcmp(ast->name, "CHARC")) {
+                printf(": %c", ast->charval);
             } else {
                 // 非叶节点打印行号
                 printf("(%d)", ast->line);
@@ -112,25 +112,15 @@ void Preorder(Ast ast, int level) {
 // 错误处理
 void yyerror(char *msg) {
     hasFault = 1;
-    fprintf(stderr, "Error type B at Line %d, %s, before '%s'\n", yylineno, msg, yytext);
+    fprintf(stderr, "Syntax Error [Line %d]: %s, before '%s'\n", yylineno, msg, yytext);
 }
-
-// 设置节点打印状态 该节点为子节点
-// void setChildTag(tnode node) {
-//     int i;
-//     for (i = 0; i < nodeNum; i++) {
-//         if (nodeList[i] == node) {
-//             nodeIsChild[i] = 1;
-//         }
-//     }
-// }
 
 // 主函数 扫描文件并且分析
 // 为bison会自己调用yylex()，所以在main函数中不需要再调用它了
 // bison使用yyparse()进行语法分析，所以需要我们在main函数中调用yyparse()和yyrestart()
 int main(int argc, char **argv) {
     int j;
-    printf("start analysis\n");
+    printf("YASC: Start analysis...\n\n");
     if (argc < 2) {
         return 1;
     }
@@ -150,8 +140,8 @@ int main(int argc, char **argv) {
         fclose(f);
 
         // 遍历所有非子节点的节点
-        if (hasFault)
-            continue;
+        // if (hasFault)
+        //     continue;
         for (j = 0; j < nodeNum; j++) {
 //            if (nodeIsChild[j] != 1) {
 //                Preorder(nodeList[j], 0);
@@ -161,4 +151,5 @@ int main(int argc, char **argv) {
             }
         }
     }
+    printf("\nYASC: Finish analysis...\n");
 }
