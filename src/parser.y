@@ -2,6 +2,7 @@
 #include<unistd.h>
 #include<stdio.h>   
 #include "main.h"
+#include "analyzer.h"
 int yylex();
 %}
 %union{

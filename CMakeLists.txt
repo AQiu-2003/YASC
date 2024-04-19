@@ -28,4 +28,5 @@ add_executable(
         ${FLEX_scanner_OUTPUTS}
         src/tm.c
         src/main.c
+        src/analyzer.c
 )
