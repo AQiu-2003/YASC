@@ -3,6 +3,8 @@
 # Check the operating system
 os=$(uname -s)
 
+cd src
+
 # Compile Bison and Flex files
  bison -d parser.y
  flex scanner.l

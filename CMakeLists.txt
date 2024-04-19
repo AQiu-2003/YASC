@@ -20,7 +20,7 @@ flex_target(
 )
 add_flex_bison_dependency(scanner parser)
 
-include_directories(src)
+include_directories(include)
 
 add_executable(
         YASC
