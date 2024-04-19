@@ -140,8 +140,8 @@ int main(int argc, char **argv) {
         fclose(f);
 
         // 遍历所有非子节点的节点
-        if (hasFault)
-            continue;
+        // if (hasFault)
+        //     continue;
         for (j = 0; j < nodeNum; j++) {
 //            if (nodeIsChild[j] != 1) {
 //                Preorder(nodeList[j], 0);
@@ -153,3 +153,88 @@ int main(int argc, char **argv) {
     }
     printf("\nYASC: Finish analysis...\n");
 }
+/**********************语义分析**************************/
+// 分析语法树，建立符号表
+void analysis(tnode val){
+    int i;
+    
+}
+
+var *varhead, *vartail;
+// 建立变量符号
+void newvar(int num,...){
+    va_list valist;
+    va_start(valist,num);
+    var* res=(var*)malloc(sizeof(var));
+    tnode temp=(tnode)malloc(sizeof(tnode));
+    temp=va_arg(valist,tnode);//var type id;
+    res->type=temp->content;
+    temp=va_arg(valist,tnode);
+    res->name=temp->content;
+    vartail->next=res;
+    vartail=res;
+}
+// 变量是否已经定义
+int findvar(tnode val){
+    var *temp=(var *)malloc(sizeof(var*));
+    temp=varhead->next;
+    while (temp!=NULL)
+    {
+        if(!strcmp(temp->name,val->name)){
+            return 1;
+        }
+        temp=temp->next;
+    }
+    return 0;
+}
+// 变量类型
+char* typevar(tnode val){
+    var* temp=(var*)malloc(sizeof(var *));
+    temp=varhead->next;
+    while (temp!=NULL)
+    {
+        if(!strcmp(temp->name,val->content)){
+            return temp->type;
+        }
+        temp=temp->next;
+    }
+    return NULL;
+}
+// 这样赋值号左边仅能出现ID、Exp LB Exp RB 以及 Exp DOT ID
+int checkleft(tnode val);
+
+type *typehead,*typetail;
+// 建立类型符号表
+ void newtype(int num,...);
+// 查询是否已经定义
+ int findtype(tnode val);
+ char *typevar(tnode val);
+
+func *funchead,*functail;
+// 记录函数实参
+int va_num;
+char* va_type[10];
+void getdetype(tnode val);//定义的参数
+void getretype(tnode val);//实际的参数
+void getargs(tnode Args);//获取实参
+int checkrtype(tnode ID,tnode Args);//检查形参与实参是否一致
+// 建立函数符号
+void newfunc(int num, ...);
+// 函数是否已经定义
+int findfunc(tnode val);
+// 函数类型
+char *typefunc(tnode val);
+// 函数的形参个数
+int numfunc(tnode val);
+// 函数实际返回值类型
+char *rtype[10];
+int rnum;
+void getrtype(tnode val);
+
+array *arrayhead,*arraytail;
+// 建立数组符号
+void newarray(int num, ...);
+// 查找数组是否已经定义
+int findarray(tnode val);
+// 数组类型
+char *typearray(tnode val);

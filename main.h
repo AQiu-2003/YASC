@@ -21,6 +21,9 @@ typedef struct treeNode{
     char* name;
     // fchild是第一个孩子节点，next是兄弟节点，使用孩子兄弟表示法
     struct treeNode *father, *fchild, *next;
+
+    char *content;
+    int ncld;
     // 联合体，同一时间只能保存一个成员的值，分配空间是其中最大类型的内存大小
     union{
         // id内容或者type类型（int/float）
@@ -47,7 +50,7 @@ extern int hasFault;
 
 /**********************语义分析**************************/
 // 分析语法树，建立符号表
-void analysis(tnode val);
+extern void analysis(tnode val);
 
 // 变量符号表的结点
 typedef struct var_
@@ -56,15 +59,15 @@ typedef struct var_
     char *type;
     struct var_ *next;
 }var;
-var  *varhead, *vartail;
+extern  var *varhead, *vartail;
 // 建立变量符号
-void newvar(int num,...);
+extern void newvar(int num,...);
 // 变量是否已经定义
-int  findvar(tnode val);
+extern int findvar(tnode val);
 // 变量类型
-char* typevar(tnode val);
+extern char* typevar(tnode val);
 // 这样赋值号左边仅能出现ID、Exp LB Exp RB 以及 Exp DOT ID
-int checkleft(tnode val);
+extern int checkleft(tnode val);
 
 
 // 自定义类型符号表
@@ -75,12 +78,12 @@ typedef struct type_
     char *type;
     struct type_ *next;
 }type;
-type *typehead,*typetail;
+extern type *typehead,*typetail;
 // 建立类型符号表
-void newtype(int num,...);
+extern void newtype(int num,...);
 // 查询是否已经定义
-int findtype(tnode val);
-char *typevar(tnode val);
+extern int findtype(tnode val);
+extern char *typevar(tnode val);
 
 
 // 函数符号表的结点
@@ -94,26 +97,26 @@ typedef struct func_
     char *va_type[10];
     struct func_ *next;
 }func;
-func *funchead,*functail;
+extern func *funchead,*functail;
 // 记录函数实参
-int va_num;
-char* va_type[10];
-void getdetype(tnode val);//定义的参数
-void getretype(tnode val);//实际的参数
-void getargs(tnode Args);//获取实参
-int checkrtype(tnode ID,tnode Args);//检查形参与实参是否一致
+extern int va_num;
+extern char* va_type[10];
+extern void getdetype(tnode val);//定义的参数
+extern void getretype(tnode val);//实际的参数
+extern void getargs(tnode Args);//获取实参
+extern int checkrtype(tnode ID,tnode Args);//检查形参与实参是否一致
 // 建立函数符号
-void newfunc(int num, ...);
+extern void newfunc(int num, ...);
 // 函数是否已经定义
-int findfunc(tnode val);
+extern int findfunc(tnode val);
 // 函数类型
-char *typefunc(tnode val);
+extern char *typefunc(tnode val);
 // 函数的形参个数
-int numfunc(tnode val);
+extern int numfunc(tnode val);
 // 函数实际返回值类型
-char *rtype[10];
-int rnum;
-void getrtype(tnode val);
+extern char *rtype[10];
+extern int rnum;
+extern void getrtype(tnode val);
 
 // 数组符号表的结点
 typedef struct array_
@@ -122,10 +125,10 @@ typedef struct array_
     char *type;
     struct array_ *next;
 }array;
-array *arrayhead,*arraytail;
+extern array *arrayhead,*arraytail;
 // 建立数组符号
-void newarray(int num, ...);
+extern void newarray(int num, ...);
 // 查找数组是否已经定义
-int findarray(tnode val);
+extern int findarray(tnode val);
 // 数组类型
-char *typearray(tnode val);
+extern char *typearray(tnode val);
