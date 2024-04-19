@@ -1,9 +1,6 @@
 #include "main.h"
 #include "parser.tab.h"
 
-// 用于遍历
-int i;
-
 int nodeNum;
 int hasFault;
 tnode nodeList[5000];
@@ -27,7 +24,7 @@ Ast newAst(char *name, int num, ...) {
     // 表示当前节点不是终结符号，还有子节点
     if (num > 0) {
         temp = va_arg(list, tnode);
-        for (i = 0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             temp->father = father;
             if (father->fchild == NULL) {
                 father->fchild = temp;
@@ -80,7 +77,7 @@ void Preorder(Ast ast, int level) {
     // printf(" into ");
     if (ast != NULL) {
         // 层级结构缩进
-        for (i = 0; i < level; ++i) {
+        for (int i = 0; i < level; ++i) {
             printf(" ");
         }
         // printf(" rline ");
@@ -120,11 +117,20 @@ void yyerror(char *msg) {
 // bison使用yyparse()进行语法分析，所以需要我们在main函数中调用yyparse()和yyrestart()
 int main(int argc, char **argv) {
     int j;
-    printf("YASC: Start analysis...\n\n");
+    int printTree = 1;
+    printf("YASC: Start analysis...\n");
     if (argc < 2) {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return 1;
     }
-    for (i = 1; i < argc; i++) {
+    int i = 1;
+    if (argc > 2) {
+        if(strcmp(argv[1], "--no-tree") == 0) {
+            printTree = 0;
+            i = 2;
+        }
+    }
+    for (; i < argc; i++) {
         // 初始化节点记录列表
         nodeNum = 0;
         memset(nodeList, 0, sizeof(tnode) * 5000);
@@ -140,18 +146,20 @@ int main(int argc, char **argv) {
         fclose(f);
 
         // 遍历所有非子节点的节点
-         if (hasFault)
-             continue;
-        for (j = 0; j < nodeNum; j++) {
-//            if (nodeIsChild[j] != 1) {
-//                Preorder(nodeList[j], 0);
-//            }
-            if (nodeList[j]->father == NULL) {
-                Preorder(nodeList[j], 0);
+        if (hasFault)
+            continue;
+        else
+            printf("YASC: No syntax error found.\n");
+        if (printTree) {
+            for (j = 0; j < nodeNum; j++) {
+                if (nodeList[j]->father == NULL) {
+                    Preorder(nodeList[j], 0);
+                }
             }
         }
+
     }
-    printf("\nYASC: Finish analysis...\n");
+    printf("YASC: Finish analysis!\n");
 }
 /**********************语义分析**************************/
 // 分析语法树，建立符号表
