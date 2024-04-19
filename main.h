@@ -83,7 +83,7 @@ extern type *typehead,*typetail;
 extern void newtype(int num,...);
 // 查询是否已经定义
 extern int findtype(tnode val);
-extern char *typevar(tnode val);
+extern char *typetype(tnode val);
 
 
 // 函数符号表的结点
@@ -91,8 +91,8 @@ typedef struct func_
 {
     int tag; //0表示未定义，1表示定义
     char *name;
-    char *type;
-    char *rtype; //声明返回值类型
+    //char *type;
+    //char *rtype; //声明返回值类型
     int va_num;  //记录函数形参个数
     char *va_type[10];
     struct func_ *next;
@@ -123,6 +123,8 @@ typedef struct array_
 {
     char *name;
     char *type;
+    int low;
+    int top;
     struct array_ *next;
 }array;
 extern array *arrayhead,*arraytail;
