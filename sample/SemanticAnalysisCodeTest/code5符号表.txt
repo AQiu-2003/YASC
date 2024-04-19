@@ -1,0 +1,31 @@
+program  example
+    type
+        t1 = array [0..6] of integer;
+        t2 = record
+                integer  x;
+                char     y,z,m;
+                array [0..5] of char array1;
+                end;
+    var
+        integer i1;
+        char c1;
+        t1 a1;
+        t2 r1;
+
+    procedure p1(char s1;var char s2; t1 s3; t2 s4);
+        var
+            integer i1;
+        procedure p2();
+            procedure p3(char c);
+            begin
+            end
+        begin
+        end
+
+    begin
+    end
+
+begin
+
+end.
+
