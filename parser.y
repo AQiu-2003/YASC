@@ -133,9 +133,10 @@ ProcBody:ProgramBody{$$=newAst("ProcBody",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 
 ProgramBody:BEGIN1 StmList END{$$=newAst("ProgramBody",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
 
-StmList:Stm StmMore{$$=newAst("StmList",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
+StmList:Stm {$$=newAst("StmList",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
+    |Stm SEMI StmMore{$$=newAst("StmList",3,$1,$2,$3);nodeList[nodeNum]=$$;nodeNum++;}
 StmMore:{$$=newAst("StmMore",0,-1);nodeList[nodeNum]=$$;nodeNum++;}
-    |SEMI StmList{$$=newAst("StmMore",2,$1,$2);nodeList[nodeNum]=$$;nodeNum++;}
+    |StmList{$$=newAst("StmMore",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
 Stm:ConditionalStm{$$=newAst("Stm",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
     |LoopStm{$$=newAst("Stm",1,$1);nodeList[nodeNum]=$$;nodeNum++;}
     |InputStm{$$=newAst("Stm",1,$1);nodeList[nodeNum]=$$;nodeNum++;}

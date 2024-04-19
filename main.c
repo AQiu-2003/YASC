@@ -140,8 +140,8 @@ int main(int argc, char **argv) {
         fclose(f);
 
         // 遍历所有非子节点的节点
-        // if (hasFault)
-        //     continue;
+        if (hasFault)
+            continue;
         for (j = 0; j < nodeNum; j++) {
 //            if (nodeIsChild[j] != 1) {
 //                Preorder(nodeList[j], 0);
