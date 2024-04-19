@@ -1,8 +1,7 @@
-/* ÅĞ¶ÏÁªÈë±êÖ¾,ÈçÒÑÁªÈë¸ÃÍ·ÎÄ¼şÔò²»ÔÙÁªÈë */
+/* åˆ¤æ–­è”å…¥æ ‡å¿—,å¦‚å·²è”å…¥è¯¥å¤´æ–‡ä»¶åˆ™ä¸å†è”å…¥ */
 #ifndef _TM_H_
 #define _TM_H_
 
-
-void   tmain(char * codefile );
+void tmain(char *codefile);
 
 #endif

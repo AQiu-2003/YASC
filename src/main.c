@@ -1,5 +1,6 @@
 #include "main.h"
 #include "parser.tab.h"
+#include "tm.h"
 
 int nodeNum;
 int hasFault;
@@ -152,6 +153,7 @@ int main(int argc, char **argv) {
 
     }
     printf("YASC: Finish analysis!\n");
+    // tmain(NULL);
 }
 /**********************语义分析**************************/
 // 分析语法树，建立符号表
