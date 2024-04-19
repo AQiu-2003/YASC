@@ -34,6 +34,8 @@ Ast newAst(char *name, int num, ...) {
             father->intvalue = temp->intvalue;
             father->charvalue = temp->charvalue;
             father->line = temp->line;
+            // 释放temp
+            free(temp);
         } else {
             for (int i = 0; i < num; ++i) {
                 temp->father = father;
@@ -74,7 +76,7 @@ Ast newAst(char *name, int num, ...) {
 // 父节点->左子节点->右子节点....
 void Preorder(Ast ast, int level) {
     // printf(" into ");
-    if (ast != NULL) {
+    if (ast != NULL && ast->line != -1) {
         // 层级结构缩进
         for (int i = 0; i < level; ++i) {
             printf(" ");
