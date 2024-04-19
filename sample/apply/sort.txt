@@ -4,7 +4,7 @@
 
 program  p
 var  integer  i,j,num;
-      array[1..20] of  integer a;
+      Array[1..20] of  integer a;
 
 procedure  q(integer num);
 var  integer i,j,k;

@@ -5,7 +5,7 @@ type
 				integerww  x;{域变量类型不为基本类型}
 				char     y,z;
 				  end;
-	sarray = array [0..5] of integer;
+	sarray = Array [0..5] of integer;
 var
 	integer i1,i2;
 	char c1;

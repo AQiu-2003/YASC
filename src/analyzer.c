@@ -2,6 +2,7 @@
 // Created by AQiu on 2024/4/20.
 //
 #include <stdio.h>
+#include <stdbool.h>
 #include "main.h"
 #include "analyzer.h"
 
@@ -9,42 +10,37 @@
 // 分析语法树，建立符号表
 void analysis(tnode val) {
     int i;
-
 }
 
-var *varhead, *vartail;
+Var *varHead, *varTail;
 
 // 建立变量符号
-void newvar(int num, ...) {
-    va_list valist;
-    va_start(valist, num);
-    var *res = (var *) malloc(sizeof(var));
-    tnode temp = (tnode) malloc(sizeof(tnode));
-    temp = va_arg(valist, tnode);//var type id;
-    res->type = temp->value.content;
-    temp = va_arg(valist, tnode);
-    res->name = temp->value.content;
-    vartail->next = res;
-    vartail = res;
+// call from: VarDecList
+void newVar(char *name, char *type) {
+    Var *res = (Var *) malloc(sizeof(Var));
+    res->name = name;
+    res->type = type;
+    varTail->next = res;
+    varTail = res;
 }
 
 // 变量是否已经定义
-int findvar(tnode val) {
-    var *temp = (var *) malloc(sizeof(var *));
-    temp = varhead->next;
+// call from: Exp
+bool findVar(tnode val) {
+    Var *temp = varHead->next;
     while (temp != NULL) {
         if (!strcmp(temp->name, val->value.content)) {
-            return 1;
+            return true;
         }
         temp = temp->next;
     }
-    return 0;
+    return false;
 }
 
 // 变量类型
-char *typevar(tnode val) {
-    var *temp = (var *) malloc(sizeof(var *));
-    temp = varhead->next;
+// call from: Exp
+char *typeOfVar(tnode val) {
+    Var *temp = varHead->next;
     while (temp != NULL) {
         if (!strcmp(temp->name, val->value.content)) {
             return temp->type;
@@ -57,88 +53,75 @@ char *typevar(tnode val) {
 // 这样赋值号左边仅能出现ID、Exp LB Exp RB 以及 Exp DOT ID
 int checkleft(tnode val);
 
-type *typehead, *typetail;
+Type *typeHead, *typeTail;
 
 // 建立类型符号表
-void newtype(int num, ...){
-    va_list valist;
-    va_start(valist,num);
-    type* res=(type*)malloc(sizeof(type));
-    tnode temp=(tnode)malloc(sizeof(tnode));
-    temp=va_arg(valist,tnode);
-    res->type=temp->value.content;
-    temp=va_arg(valist,tnode);
-    res->name=temp->value.content;
-
-    typetail->next=res;
-    typetail=res;
+// call from: TypeDecList
+void newType(char *name, char *type) {
+    Type *res = (Type *) malloc(sizeof(Var));
+    res->name = name;
+    res->type = type;
+    typeTail->next = res;
+    typeTail = res;
 }
+
 // 查询是否已经定义
-int findtype(tnode val){
-
-    type *temp=(type *)malloc(sizeof(type*));
-    temp=typehead->next;
-    while (temp!=NULL)
-    {
-        if(!strcmp(temp->name,val->value.content)){
-            return 1;
+// call from: TypeDef
+bool findType(tnode val) {
+    Type *temp = typeHead->next;
+    while (temp != NULL) {
+        if (!strcmp(temp->name, val->value.content)) {
+            return true;
         }
-        temp=temp->next;
+        temp = temp->next;
     }
-    while (temp!=NULL)
-    {
-        if(!strcmp(temp->type,val->value.content)){
-            return 1;
-        }
-        temp=temp->next;
-    }
-    return 0;
+    return false;
 }
-char *typetype(tnode val){
-    type* temp=(type*)malloc(sizeof(type*));
-    temp=typehead->next;
-    while (temp!=NULL)
-    {
-        if(!strcmp(temp->name,val->value.content)){
+
+// 返回（自定义）类型的类型
+// call from: ActParamList > Exp
+char *typeOfType(tnode val) {
+    Type *temp = typeHead->next;
+    while (temp != NULL) {
+        if (!strcmp(temp->name, val->value.content)) {
             return temp->type;
         }
-        temp=temp->next;
+        temp = temp->next;
     }
     return NULL;
 }
 
-func *funchead, *functail;
+Proc *procHead, *procTail;
 // 记录函数实参
 int va_num;
 char *va_type[10];
 // 函数实际返回值类型
 char *rtype[10];
 
-//void getargs(tnode Args);//获取实参
-int checkrtype(tnode ID, tnode Args)//检查形参与实参是否一致
-{
+// param 形参 args 实参
+bool checkParamMatchArgs(tnode param, tnode args) {//检查形参与实参是否一致
     int i;
     va_num = 0;
-    getretype(Args);
-    func *temp = (func *) malloc(sizeof(func *));
-    temp = funchead->next;
+    getArgs(args);
+    Proc *temp = procHead->next;
     while (temp != NULL && temp->name != NULL && temp->tag == 1) {
-        if (!strcmp(temp->name, ID->value.content))
+        if (!strcmp(temp->name, param->value.content))
             break;
         temp = temp->next;
     }
     if (va_num != temp->va_num)
-        return 1;
+        return true;
     for (i = 0; i < temp->va_num; i++) {
         if (temp->va_type[i] == NULL || va_type[i] == NULL || strcmp(temp->va_type[i], va_type[i]) != 0) {
-            return 1;
+            return true;
         }
     }
-    return 0;
+    return false;
 }
 
 // 建立函数符号
-void newfunc(int num, ...) {
+// call from: ProcDec
+void newProc(int num, ...) {
     int i;
     va_list valist;
     va_start(valist, num);
@@ -146,41 +129,44 @@ void newfunc(int num, ...) {
     switch (num) {
         case 1: //procedure A()
             temp = va_arg(valist, tnode);
-            functail->name = temp->value.content;
-            functail->tag = 1;
-            func *new = (func *) malloc(sizeof(func));
-            functail->next = new;
-            functail = new;
+            procTail->name = temp->value.content;
+            procTail->tag = 1;
+            Proc *new = (Proc *) malloc(sizeof(Proc));
+            procTail->next = new;
+            procTail = new;
             break;
-        case 2: // procedure A(prarmlist)
+        case 2: // procedure A(param-list)
             temp = va_arg(valist, tnode);
-            functail->name = temp->value.content;
+            procTail->name = temp->value.content;
             temp = va_arg(valist, tnode);
-            functail->va_num = 0;
-            getdetype(temp);
+            procTail->va_num = 0;
+            getParam(temp);
             break;
         default:
             break;
     }
 }
 
-void getdetype(tnode val) {//定义的参数
+// 获取形参
+// call from: ID AssCall
+void getParam(tnode val) {
     int i;
     if (val != NULL) {
         if (!strcmp(val->name, "Param")) {
-            functail->va_type[functail->va_num] = val->value.content;
-            functail->va_num++;
+            procTail->va_type[procTail->va_num] = val->value.content;
+            procTail->va_num++;
             return;
         }
         for (i = 0; i < val->childCount; i++) {
-            getdetype(val->childs[i]);
+            getParam(val->childs[i]);
         }
     } else
         return;
 }
 
-void getretype(tnode val)//实际的参数
-{
+// 获取实参
+// call from: ActParamList
+void getArgs(tnode val) {
     int i;
     if (val != NULL) {
         if (!strcmp(val->name, "ActParamList")) {
@@ -188,15 +174,16 @@ void getretype(tnode val)//实际的参数
             va_num++;
         }
         for (i = 0; i < val->childCount; i++) {
-            getretype(val->childs[i]);
+            getArgs(val->childs[i]);
         }
     }
 }
 
 // 函数是否已经定义
-int findfunc(tnode val) {
-    func *temp = (func *) malloc(sizeof(func *));
-    temp = funchead->next;
+// call from: ID AssCall
+int findProc(tnode val) {
+    Proc *temp = (Proc *) malloc(sizeof(Proc *));
+    temp = procHead->next;
     while (temp != NULL && temp->name != NULL && temp->tag == 1) {
         if (!strcmp(temp->name, val->value.content)) {
             return 1;
@@ -207,9 +194,10 @@ int findfunc(tnode val) {
 }
 
 // 函数的形参个数
-int numfunc(tnode val) {
-    func *temp = (func *) malloc(sizeof(func *));
-    temp = funchead->next;
+// call from: ID AssCall
+int paramCountOfProc(tnode val) {
+    Proc *temp = (Proc *) malloc(sizeof(Proc *));
+    temp = procHead->next;
     while (temp != NULL) {
         if (!strcmp(temp->name, val->value.content)) {
             return temp->va_num;
@@ -219,16 +207,30 @@ int numfunc(tnode val) {
     return 0;
 }
 
+// 函数的实参个数
+// call from: ActParamList
+int argsCountOfCall(tnode val) {
+    int i;
+    int count = 0;
+    for (i = 0; i < val->childCount; i++) {
+        if (!strcmp(val->childs[i]->name, "ActParamList")) {
+            count++;
+        }
+    }
+    return count;
 
-array *arrayhead, *arraytail;
+}
+
+
+Array *arrayhead, *arraytail;
 
 // 建立数组符号
-void newarray(int num, ...) {
+void newArray(int num, ...) {
     va_list valist;
     va_start(valist, num);
-    array *res = (array *) malloc(sizeof(array));
+    Array *res = (Array *) malloc(sizeof(Array));
     tnode temp = (tnode) malloc(sizeof(struct treeNode));
-    //array a[1..10] of basetype; a 1 10 type newarray(2,$2,$8)
+    //Array a[1..10] of basetype; a 1 10 type newArray(2,$2,$8)
     temp = va_arg(valist, tnode);
     res->name = temp->value.content;
     temp = va_arg(valist, tnode);
@@ -242,21 +244,21 @@ void newarray(int num, ...) {
 }
 
 // 查找数组是否已经定义
-int findarray(tnode val) {
-    array *temp = (array *) malloc(sizeof(array *));
+bool findArray(tnode val) {
+    Array *temp = (Array *) malloc(sizeof(Array *));
     temp = arrayhead->next;
     while (temp != NULL) {
         /* code */
         if (!strcmp(temp->name, val->value.content))
-            return 1;
+            return true;
         temp = temp->next;
     }
-    return 0;
+    return false;
 }
 
 // 数组类型
-char *typearray(tnode val) {
-    array *temp = (array *) malloc(sizeof(array *));
+char *typeOfArray(tnode val) {
+    Array *temp = (Array *) malloc(sizeof(Array *));
     temp = arrayhead->next;
     while (temp != NULL) {
         /* code */

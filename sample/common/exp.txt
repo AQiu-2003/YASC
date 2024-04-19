@@ -4,9 +4,9 @@ type t1=integer;
      t2=t1;
 var  integer v1,v2,c;
      t2  v3;
-     array [2..100] of integer  a;
+     Array [2..100] of integer  a;
      record 
-        array [1..10]  of  integer  b;
+        Array [1..10]  of  integer  b;
 	integer  v4;
 	
      end  r1;	
@@ -15,7 +15,7 @@ var  integer v1,v2,c;
 procedure f(  var  t1  y);
 
 var  integer v11,v22;
-    array [2..100] of char  a1;
+    Array [2..100] of char  a1;
 begin
      r1.v4:=1+3*(7-5);
      

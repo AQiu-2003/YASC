@@ -1,10 +1,10 @@
 program  example
     type
-        t1 = array [0..6] of integer;
+        t1 = Array [0..6] of integer;
         t2 = record
                 integer  x;
                 char     y,z,m;
-                array [0..5] of char array1;
+                Array [0..5] of char array1;
                 end;
     var
         integer i1;

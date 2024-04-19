@@ -4,7 +4,7 @@ type w1=integer;
           integer  x;
           char     y,z,m;
         end;
-     w3=array [3..6] of integer;  {haha}
+     w3=Array [3..6] of integer;  {haha}
 
 var integer p;
      w3 c;

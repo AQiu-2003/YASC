@@ -33,7 +33,7 @@ BEGIN1 begin
 END end
 READ read
 WRITE write
-ARRAY array
+ARRAY Array
 OF of
 RECORD record
 RETURN return

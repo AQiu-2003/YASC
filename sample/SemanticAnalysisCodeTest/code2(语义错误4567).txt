@@ -4,12 +4,12 @@
 {7.赋值语句左端不是变量标识符}
 program  example
     type
-        type1 = array [2..1] of integer;{4.数组类型下标越界错误}
-        type2 = array [0..1] of integer;
+        type1 = Array [2..1] of integer;{4.数组类型下标越界错误}
+        type2 = Array [0..1] of integer;
         type3 = record
                 integer  x;
                 char     y,z,m;
-                array [0..5] of integer array1;
+                Array [0..5] of integer array1;
              end;
     var
         type2 array1;
