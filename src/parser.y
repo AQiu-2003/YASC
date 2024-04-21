@@ -50,7 +50,7 @@ int yylex();
 //项
 %type <type_tnode> Term OtherFactor
 //因子
-%type <type_tnode> Factor Varible VariMore FieldVar FieldVarMode CmpOp AddOp MultOP
+%type <type_tnode> Factor Variable VariMore FieldVar FieldVarMode CmpOp AddOp MultOP
 
 /*优先级*/
 %right ASSIGN
@@ -80,7 +80,7 @@ TypeDecpart:{$$=newAst("TypeDecpart",0,-1);}
 TypeDec:TYPE TypeDecList{$$=newAst("TypeDec",2,$1,$2);}
 TypeDecList:TypeId RELOP TypeDef SEMI TypeDecMore{
     $$=newAst("TypeDecList",5,$1,$2,$3,$4,$5);
-    //addSymbol($1->childs[0]->value.content, $3, type);
+    //addSymbol($1->child[0]->value.content, $3, type);
 }
 TypeDecMore:{$$=newAst("TypeDecMore",0,-1);}
     |TypeDecList{$$=newAst("TypeDecMore",1,$1);}
@@ -126,7 +126,7 @@ ProcDecpart:{$$=newAst("ProcDecpart",0,-1);}
     |ProcDec{$$=newAst("ProcDecpart",1,$1);}
 ProcDec:PROCEDURE ProcName LPAREN ParamList RPAREN SEMI ProcDecPart ProcBody ProcDecMore{
     $$=newAst("ProcDec",9,$1,$2,$3,$4,$5,$6,$7,$8,$9);
-    //addSymbol($2->childs[0]->value.content, $4, proc);
+    //addSymbol($2->child[0]->value.content, $4, proc);
 }
 ProcDecMore:{$$=newAst("ProcDecMore",0,-1);}
     |ProcDec{$$=newAst("ProcDecMore",1,$1);}
@@ -190,8 +190,8 @@ OtherFactor:{$$=newAst("OtherFactor",0,-1);}
 Factor:LPAREN Exp RPAREN{$$=newAst("Factor",3,$1,$2,$3);}
     |INTC{$$=newAst("Factor",1,$1);}
     |CHARC{$$=newAst("Factor",1,$1);}
-    |Varible{$$=newAst("Factor",1,$1);}
-Varible:ID VariMore{$$=newAst("Varible",2,$1,$2);}
+    |Variable{$$=newAst("Factor",1,$1);}
+Variable:ID VariMore{$$=newAst("Variable",2,$1,$2);}
 VariMore:{$$=newAst("VariMore",0,-1);}
     |LMIDPAREN Exp RMIDPAREN{$$=newAst("VariMore",3,$1,$2,$3);}
     |DOT FieldVar{$$=newAst("VariMore",2,$1,$2);}

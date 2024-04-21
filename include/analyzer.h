@@ -5,6 +5,10 @@
 #ifndef YASC_ANALYZER_H
 #define YASC_ANALYZER_H
 
+#include "main.h"
+#include "symbol.h"
+
 extern void startAnalysis();
+extern Type *analyzeExp(tnode exp);
 
 #endif //YASC_ANALYZER_H

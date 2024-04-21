@@ -1,16 +1,16 @@
 # YASC - Yet Another SNL Compiler
 
-Language: C
+Language: C (with flex/bison)
 
 Start Time: 2024.04.02
 
-End Time: todo
+End Time: 2024.04.23
 
 ## Compiler Progress
 
-- [x] lexical analysis
-- [x] syntax analysis
-- [ ] Semantic Analysis
+- [x] Lexical analysis
+- [x] Syntax analysis
+- [ ] Semantic analysis
 
 ## Environment
 

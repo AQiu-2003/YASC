@@ -39,12 +39,12 @@ Ast newAst(char *name, int num, ...) {
 //        } else {
             for (int i = 0; i < num; ++i) {
                 temp->father = father;
-                father->childs[i] = temp;
+                father->child[i] = temp;
                 temp = va_arg(list, tnode);
             }
             for (int i = 0; i < num; i++) {
-                if (father->childs[i]->line != -1) {
-                    father->line = father->childs[i]->line;
+                if (father->child[i]->line != -1) {
+                    father->line = father->child[i]->line;
                     break;
                 }
             }
@@ -97,7 +97,7 @@ void Preorder(Ast ast, int level) {
 
         printf("\n");
         for (int i = 0; i < ast->childCount; i++) {
-            Preorder(ast->childs[i], level + 1);
+            Preorder(ast->child[i], level + 1);
         }
     }
 }

@@ -11,8 +11,8 @@
 tnode findChildByName(tnode val, char *name) {
     if(val == NULL) return NULL;
     for (int i = 0; i < val->childCount; i++) {
-        if (!strcmp(val->childs[i]->name, name)) {
-            return val->childs[i];
+        if (!strcmp(val->child[i]->name, name)) {
+            return val->child[i];
         }
     }
     return NULL;
@@ -56,9 +56,9 @@ void getAstNodeForDebug(tnode node) {
 //    printf("value: %s\n", node->value.content);
     printf("type: %s\n", node->type);
 //    printf("father: %s\n", node->father->name);
-//    printf("childs: ");
+//    printf("child: ");
 //    for (int i = 0; i < node->childCount; i++) {
-//        printf("%s ", node->childs[i]->name);
+//        printf("%s ", node->child[i]->name);
 //    }
     printf("\n");
 }

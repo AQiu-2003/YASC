@@ -13,6 +13,7 @@ typedef struct declare_ Declare;
 /**********************语义分析**************************/
 // 分析语法树，建立符号表
 extern void initSymbol();
+extern Declare *globalScope;
 extern Declare *currentScope;
 
 // 建立类型变量符号
@@ -65,14 +66,16 @@ struct declare_ {
 
 
 extern VarNode *newVar(char *name, tnode decType);
-extern VarNode *findVar(char *name, VarNode *from);
+extern VarNode *findVar(char *name, Declare *scope);
+extern VarNode *findVarInAllScope(char *name);
 extern Record * newRecord(tnode decList);
 extern Array *newArray(tnode arrayType);
 extern TypeNode *newType(char *name, tnode decType);
 extern Type *findType(char *name, Declare *scope);
 extern Type *findTypeInAllScope(char *name);
 extern ProcNode *newProc(char *name, tnode paramList);
-extern ProcNode *findProc(char *name, ProcNode *from);
+extern ProcNode *findProc(char *name, Declare *scope);
+extern ProcNode *findProcInAllScope(char *name);
 
 Declare *initNewDeclare();
 extern Declare *newDeclare(tnode declarePart);

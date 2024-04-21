@@ -18,7 +18,7 @@ typedef struct treeNode {
     // Token类型
     char *name;
     // 记录子节点，最多10个，使用数组存储
-    struct treeNode *father, *childs[10];
+    struct treeNode *father, *child[10];
     int childCount;    //记录孩子节点个数
 
     char *type;     //存放类型（int/char)

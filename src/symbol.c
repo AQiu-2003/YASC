@@ -40,20 +40,20 @@ VarNode *newVar(char *name, tnode decType) {
     VarNode *res = (VarNode *) malloc(sizeof(VarNode));
     res->name = name;
     res->next = NULL;
-    if(!strcmp(decType->childs[0]->name, "StructureType")) {
+    if(!strcmp(decType->child[0]->name, "StructureType")) {
         char *newName = (char *) malloc(sizeof(char) * 16);
         sprintf(newName, "%s-struct-%d", name, rand());
         res->type = newType(newName, decType)->value;
     } else {
         // custom type or base type
         Type *search = NULL;
-        decType = decType->childs[0];
+        decType = decType->child[0];
         if(!strcmp(decType->name, "ID"))
             search = findTypeInAllScope(decType->value.content);
         else
-            search = findTypeInAllScope(decType->childs[0]->value.content);
+            search = findTypeInAllScope(decType->child[0]->value.content);
         if (search == NULL) {
-            printf("Error: Type %s not defined.\n", decType->childs[0]->value.content);
+            printf("Error: Type %s not defined.\n", decType->child[0]->value.content);
             return NULL;
         } else {
             res->type = search;
@@ -64,13 +64,24 @@ VarNode *newVar(char *name, tnode decType) {
 
 // 变量是否已经定义
 // call from: Exp
-VarNode *findVar(char *name, VarNode *from) {
-    VarNode *temp = from->next;
+VarNode *findVar(char *name, Declare *scope) {
+    VarNode *temp = scope->varHead->next;
     while (temp != NULL) {
         if (!strcmp(temp->name, name)) {
             return temp;
         }
         temp = temp->next;
+    }
+    return NULL;
+}
+
+VarNode *findVarInAllScope(char *name) {
+    Declare *scope = currentScope;
+    VarNode *res = NULL;
+    while (scope != NULL) {
+        res = findVar(name, scope);
+        if (res != NULL) return res;
+        scope = scope->parent;
     }
     return NULL;
 }
@@ -83,8 +94,8 @@ Record * newRecord(tnode decList) {
     resHead->next = NULL;
     while (decList != NULL) {
         tnode ids[10];
-        char *baseType = decList->childs[0]->childs[0]->value.content; // DecList -> BaseType -> INTEGER/CHAR
-        int idCount = moreToArray(decList->childs[1], "ID", "IdMore", ids);
+        char *baseType = decList->child[0]->child[0]->value.content; // DecList -> BaseType -> INTEGER/CHAR
+        int idCount = moreToArray(decList->child[1], "ID", "IdMore", ids);
         Record *temp = resTail;
         for (int i = 0; i < idCount; i++) {
             temp->next = (Record *) malloc(sizeof(Record));
@@ -93,7 +104,7 @@ Record * newRecord(tnode decList) {
             temp->type = findType(baseType, globalScope);
         }
         temp->next = NULL;
-        decList = decList->childs[3]->childs[0];
+        decList = decList->child[3]->child[0];
         resTail = temp;
     }
     return resHead;
@@ -102,9 +113,9 @@ Record * newRecord(tnode decList) {
 Array *newArray(tnode arrayType) {
     //ArrayType:ARRAY LMIDPAREN Low UNDERANGE Top RMIDPAREN OF BaseType
     Array *res = (Array *) malloc(sizeof(Array));
-    res->low = arrayType->childs[2]->childs[0]->value.intValue;
-    res->top = arrayType->childs[4]->childs[0]->value.intValue;
-    res->baseType = findType(arrayType->childs[7]->childs[0]->value.content, globalScope);
+    res->low = arrayType->child[2]->child[0]->value.intValue;
+    res->top = arrayType->child[4]->child[0]->value.intValue;
+    res->baseType = findType(arrayType->child[7]->child[0]->value.content, globalScope);
     return res;
 }
 
@@ -114,16 +125,16 @@ Array *newArray(tnode arrayType) {
 TypeNode *newType(char *name, tnode decType) {
     struct type_ *res = (Type *) malloc(sizeof(Type));
     res->name = name;
-    tnode temp = decType->childs[0];
+    tnode temp = decType->child[0];
     if (!strcmp(temp->name, "BaseType")) {
-        temp = temp->childs[0]; // TypeDef -> BaseType -> INTEGER/CHAR
+        temp = temp->child[0]; // TypeDef -> BaseType -> INTEGER/CHAR
         if (!strcmp(temp->name, "INTEGER")) res->type = integer;
         if (!strcmp(temp->name, "CHAR")) res->type = character;
     } else if (!strcmp(temp->name, "StructureType")) {
-        temp = temp->childs[0]; // TypeDef -> StructureType -> RecType/ArrayType
+        temp = temp->child[0]; // TypeDef -> StructureType -> RecType/ArrayType
         if (!strcmp(temp->name, "RecType")) {
             res->type = record;
-            res->record = newRecord(temp->childs[1]); // RecType -> FiledDecList
+            res->record = newRecord(temp->child[1]); // RecType -> FiledDecList
         } else if (!strcmp(temp->name, "ArrayType")) {
             res->type = array;
             res->array = newArray(temp);
@@ -177,12 +188,12 @@ ProcNode *newProc(char *name, tnode paramList) {
     ProcNode *res = (ProcNode *) malloc(sizeof(ProcNode));
     res->name = name;
     res->next = NULL;
-    if(paramList->childs[0] == NULL) {
+    if(paramList->child[0] == NULL) {
         res->paramNum = 0;
         res->params = NULL;
     } else {
         tnode params[10];
-        res->paramNum = moreToArray(paramList->childs[0], "Param", "ParamMore", params);
+        res->paramNum = moreToArray(paramList->child[0], "Param", "ParamMore", params);
         VarNode *paramNode = (VarNode *) malloc(sizeof(VarNode));
         paramNode->name = "param";
         paramNode->type = NULL;
@@ -205,8 +216,8 @@ ProcNode *newProc(char *name, tnode paramList) {
 
 // 函数是否已经定义
 // call from: ID AssCall
-ProcNode *findProc(char *name, ProcNode *from) {
-    ProcNode *temp = from->next;
+ProcNode *findProc(char *name, Declare *scope) {
+    ProcNode *temp = scope->procHead->next;
     while (temp != NULL) {
         if (!strcmp(temp->name, name)) {
             return temp;
@@ -216,11 +227,22 @@ ProcNode *findProc(char *name, ProcNode *from) {
     return NULL;
 }
 
+ProcNode *findProcInAllScope(char *name) {
+    Declare *scope = currentScope;
+    ProcNode *res = NULL;
+    while (scope != NULL) {
+        res = findProc(name, scope);
+        if (res != NULL) return res;
+        scope = scope->parent;
+    }
+    return NULL;
+}
+
 bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
     void *temp = NULL;
     switch (symbolType) {
         case var:
-            temp = findVar(name, currentScope->varHead);
+            temp = findVar(name, currentScope);
             if ((VarNode *)temp != NULL) {
                 fprintf(stderr, "Segmentation fault: %s already defined\n", name);
                 return false;
@@ -242,7 +264,7 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
             }
             break;
         case proc:
-            temp = findProc(name, currentScope->procHead);
+            temp = findProc(name, currentScope);
             if ((ProcNode *)temp != NULL) {
                 fprintf(stderr, "Segmentation fault: %s already defined\n", name);
                 return false;
