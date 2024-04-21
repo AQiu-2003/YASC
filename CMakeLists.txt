@@ -26,7 +26,8 @@ add_executable(
         YASC
         ${BISON_parser_OUTPUTS}
         ${FLEX_scanner_OUTPUTS}
-        src/tm.c
         src/main.c
         src/symbol.c
+        src/analyzer.c
+        src/utils.c
 )

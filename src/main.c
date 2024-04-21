@@ -1,25 +1,11 @@
 #include <ctype.h>
 #include "main.h"
 #include "parser.tab.h"
-#include "tm.h"
 #include "symbol.h"
+#include "utils.h"
 
 int hasFault;
 tnode programNode;
-
-char *strupr(char *str) {
-    char *orign=str;
-    for (; *str!='\0'; str++)
-        *str = toupper(*str);
-    return orign;
-}
-bool isToken(tnode node) {
-    char *origin = node->name;
-    char *upper = (char *) malloc(strlen(origin) + 1);
-    strcpy(upper, origin);
-    upper = strupr(upper);
-    return !strcmp(origin, upper);
-}
 
 Ast newAst(char *name, int num, ...) {
     // 生成父节点
@@ -81,6 +67,7 @@ Ast newAst(char *name, int num, ...) {
             else if (!strcmp(name, "TYPE")) father->type = "type";
         }
     }
+//    getAstNodeForDebug(father);
     return father;
 }
 
@@ -161,5 +148,4 @@ int main(int argc, char **argv) {
 
     }
     printf("YASC: Finish analysis!\n");
-    // tmain(NULL);
 }

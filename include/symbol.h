@@ -6,14 +6,16 @@
 #define YASC_SYMBOL_H
 
 #include <stdbool.h>
+#include "main.h"
 
+typedef struct type_ Type;
+typedef struct declare_ Declare;
 /**********************语义分析**************************/
 // 分析语法树，建立符号表
 extern void initSymbol();
-extern int moreToArray(tnode list, char *resName, char *moreName, tnode res[]);
+extern Declare *currentScope;
 
 // 建立类型变量符号
-typedef struct type_ Type;
 typedef struct record_ {
     char *name;
     Type *type;
@@ -51,8 +53,15 @@ typedef struct procNode_ {
     char *name;
     unsigned int paramNum;           //记录函数形参个数
     VarNode *params;   //记录函数形参类型
+    Declare *innerDeclare; //记录函数内部类型
     struct procNode_ *next;
 } ProcNode;
+struct declare_ {
+    struct declare_ *parent;
+    TypeNode *typeHead, *typeTail;
+    VarNode *varHead, *varTail;
+    ProcNode *procHead, *procTail;
+};
 
 
 extern VarNode *newVar(char *name, tnode decType);
@@ -60,9 +69,13 @@ extern VarNode *findVar(char *name, VarNode *from);
 extern Record * newRecord(tnode decList);
 extern Array *newArray(tnode arrayType);
 extern TypeNode *newType(char *name, tnode decType);
-extern Type *findType(char *name, TypeNode *from);
+extern Type *findType(char *name, Declare *scope);
+extern Type *findTypeInAllScope(char *name);
 extern ProcNode *newProc(char *name, tnode paramList);
 extern ProcNode *findProc(char *name, ProcNode *from);
+
+Declare *initNewDeclare();
+extern Declare *newDeclare(tnode declarePart);
 
 enum symbolType_ {
     var, type, proc

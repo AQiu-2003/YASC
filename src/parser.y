@@ -3,6 +3,7 @@
 #include<stdio.h>   
 #include "main.h"
 #include "symbol.h"
+#include "utils.h"
 int yylex();
 %}
 %union{
@@ -79,7 +80,7 @@ TypeDecpart:{$$=newAst("TypeDecpart",0,-1);}
 TypeDec:TYPE TypeDecList{$$=newAst("TypeDec",2,$1,$2);}
 TypeDecList:TypeId RELOP TypeDef SEMI TypeDecMore{
     $$=newAst("TypeDecList",5,$1,$2,$3,$4,$5);
-    newType($1->childs[0]->value.content, $3);
+    addSymbol($1->childs[0]->value.content, $3, type);
 }
 TypeDecMore:{$$=newAst("TypeDecMore",0,-1);}
     |TypeDecList{$$=newAst("TypeDecMore",1,$1);}
@@ -123,10 +124,19 @@ VarIdMore:{$$=newAst("VarIdMore",0,-1);}
 
 ProcDecpart:{$$=newAst("ProcDecpart",0,-1);}
     |ProcDec{$$=newAst("ProcDecpart",1,$1);}
-ProcDec:PROCEDURE ProcName LPAREN ParamList RPAREN SEMI ProcDecPart ProcBody ProcDecMore{$$=newAst("ProcDec",9,$1,$2,$3,$4,$5,$6,$7,$8,$9);}
+ProcDec:PROCEDURE ProcName LPAREN ParamList RPAREN SEMI ProcDecPart ProcBody ProcDecMore{
+    $$=newAst("ProcDec",9,$1,$2,$3,$4,$5,$6,$7,$8,$9);
+    addSymbol($2->childs[0]->value.content, $4, proc);
+}
 ProcDecMore:{$$=newAst("ProcDecMore",0,-1);}
     |ProcDec{$$=newAst("ProcDecMore",1,$1);}
-ProcName:ID{$$=newAst("ProName",1,$1);}
+ProcName:ID{
+    $$=newAst("ProcName",1,$1);
+    // 进入新的过程作用域
+    Declare *newScope = initNewDeclare();
+    newScope->parent = currentScope;
+    currentScope = newScope;
+}
 
 ParamList:{$$=newAst("ParamList",0,-1);}
     |ParamDecList{$$=newAst("ParamList",1,$1);}

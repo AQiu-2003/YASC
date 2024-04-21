@@ -9,45 +9,29 @@
 
 /**********************语义分析**************************/
 // 分析语法树，建立符号表
-VarNode *varHead, *varTail;
-TypeNode *typeHead, *typeTail;
-ProcNode *procHead, *procTail;
+Declare *globalScope;
+Declare *currentScope;
 
 void initSymbol() {
-    // 初始化类型符号表
-    typeHead = (TypeNode *) malloc(sizeof(TypeNode));
-    typeHead->value = NULL;
-    typeHead->next = NULL;
-    typeTail = typeHead;
-    // 初始化变量符号表
-    varHead = (VarNode *) malloc(sizeof(VarNode));
-    varHead->name = "head";
-    varHead->type = NULL;
-    varHead->next = NULL;
-    varTail = varHead;
-    // 初始化过程符号表
-    procHead = (ProcNode *) malloc(sizeof(ProcNode));
-    procHead->name = "head";
-    procHead->paramNum = 0;
-    procHead->params = NULL;
-    procHead->next = NULL;
-    procTail = procHead;
+    globalScope = initNewDeclare();
+    globalScope->parent = NULL;
+    currentScope = globalScope;
 
     // 建立基本类型符号（intType, char）
     Type *intType = (Type *) malloc(sizeof(Type));
     intType->name = "integer";
     intType->type = integer;
-    typeTail->next = (TypeNode *) malloc(sizeof(TypeNode));
-    typeTail = typeTail->next;
-    typeTail->value = intType;
-    typeTail->next = NULL;
+    globalScope->typeTail->next = (TypeNode *) malloc(sizeof(TypeNode));
+    globalScope->typeTail = globalScope->typeTail->next;
+    globalScope->typeTail->value = intType;
+    globalScope->typeTail->next = NULL;
     Type *charType = (Type *) malloc(sizeof(Type));
     charType->name = "char";
     charType->type = character;
-    typeTail->next = (TypeNode *) malloc(sizeof(TypeNode));
-    typeTail = typeTail->next;
-    typeTail->value = charType;
-    typeTail->next = NULL;
+    globalScope->typeTail->next = (TypeNode *) malloc(sizeof(TypeNode));
+    globalScope->typeTail = globalScope->typeTail->next;
+    globalScope->typeTail->value = charType;
+    globalScope->typeTail->next = NULL;
 }
 
 // 建立变量符号
@@ -65,9 +49,9 @@ VarNode *newVar(char *name, tnode decType) {
         Type *search = NULL;
         decType = decType->childs[0];
         if(!strcmp(decType->name, "ID"))
-            search = findType(decType->value.content, typeHead);
+            search = findTypeInAllScope(decType->value.content);
         else
-            search = findType(decType->childs[0]->value.content, typeHead);
+            search = findTypeInAllScope(decType->childs[0]->value.content);
         if (search == NULL) {
             printf("Error: Type %s not defined.\n", decType->childs[0]->value.content);
             return NULL;
@@ -106,7 +90,7 @@ Record * newRecord(tnode decList) {
             temp->next = (Record *) malloc(sizeof(Record));
             temp = temp->next;
             temp->name = ids[i]->value.content;
-            temp->type = findType(baseType, typeHead);
+            temp->type = findType(baseType, globalScope);
         }
         temp->next = NULL;
         decList = decList->childs[3]->childs[0];
@@ -120,7 +104,7 @@ Array *newArray(tnode arrayType) {
     Array *res = (Array *) malloc(sizeof(Array));
     res->low = arrayType->childs[2]->childs[0]->value.intValue;
     res->top = arrayType->childs[4]->childs[0]->value.intValue;
-    res->baseType = findType(arrayType->childs[7]->childs[0]->value.content, typeHead);
+    res->baseType = findType(arrayType->childs[7]->childs[0]->value.content, globalScope);
     return res;
 }
 
@@ -146,7 +130,7 @@ TypeNode *newType(char *name, tnode decType) {
         }
     } else if (!strcmp(temp->name, "ID")) {
         // custom type
-        Type *search = findType(temp->value.content, typeHead);
+        Type *search = findTypeInAllScope(temp->value.content);
         if(search == NULL) {
             fprintf(stderr, "Segmentation fault: %s not defined\n", temp->value.content);
             return NULL;
@@ -162,15 +146,26 @@ TypeNode *newType(char *name, tnode decType) {
     return resNode;
 }
 
-// 查询是否已经定义
+// 查询在当前作用域是否已经定义
 // call from: TypeDef
-Type *findType(char *name, TypeNode *from) {
-    TypeNode *temp = from->next;
+Type *findType(char *name, Declare *scope) {
+    TypeNode *temp = scope->typeHead->next;
     while (temp != NULL) {
         if (!strcmp(temp->value->name, name)) {
             return temp->value;
         }
         temp = temp->next;
+    }
+    return NULL;
+}
+
+Type *findTypeInAllScope(char *name) {
+    Declare *scope = currentScope;
+    Type *res = NULL;
+    while (scope != NULL) {
+        res = findType(name, scope);
+        if (res != NULL) return res;
+        scope = scope->parent;
     }
     return NULL;
 }
@@ -225,39 +220,54 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
     void *temp = NULL;
     switch (symbolType) {
         case var:
-            temp = findVar(name, varHead);
+            temp = findVar(name, currentScope->varHead);
             if ((VarNode *)temp != NULL) {
                 fprintf(stderr, "Segmentation fault: %s already defined\n", name);
                 return false;
             } else {
                 VarNode *newVarNode = newVar(name, node);
-                varTail->next = newVarNode;
-                varTail = newVarNode;
+                currentScope->varTail->next = newVarNode;
+                currentScope->varTail = newVarNode;
             }
             break;
         case type:
-            temp = findType(name, typeHead);
+            temp = findType(name, currentScope);
             if ((Type *)temp != NULL) {
                 fprintf(stderr, "Segmentation fault: %s already defined\n", name);
                 return false;
             } else {
                 TypeNode *newTypeNode = newType(name, node);
-                typeTail->next = newTypeNode;
-                typeTail = newTypeNode;
+                currentScope->typeTail->next = newTypeNode;
+                currentScope->typeTail = newTypeNode;
             }
             break;
         case proc:
-            temp = findProc(name, procHead);
+            temp = findProc(name, currentScope->procHead);
             if ((ProcNode *)temp != NULL) {
                 fprintf(stderr, "Segmentation fault: %s already defined\n", name);
                 return false;
             } else {
                 ProcNode *newProcNode = newProc(name, node);
-                procTail->next = newProcNode;
-                procTail = newProcNode;
+                newProcNode->innerDeclare = currentScope;
+                currentScope = currentScope->parent;
+                currentScope->procTail->next = newProcNode;
+                currentScope->procTail = newProcNode;
             }
             break;
     }
     return true;
 }
 
+Declare *initNewDeclare() {
+    Declare *res = (Declare *) malloc(sizeof(Declare));
+    res->typeHead = (TypeNode *) malloc(sizeof(TypeNode));
+    res->typeHead->next = NULL;
+    res->typeTail = res->typeHead;
+    res->varHead = (VarNode *) malloc(sizeof(VarNode));
+    res->varHead->next = NULL;
+    res->varTail = res->varHead;
+    res->procHead = (ProcNode *) malloc(sizeof(ProcNode));
+    res->procHead->next = NULL;
+    res->procTail = res->procHead;
+    return res;
+}
