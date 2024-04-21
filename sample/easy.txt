@@ -1,11 +1,14 @@
 program pp
-var   integer  v1;
-char  c;
+type a = integer;
+    b = char;
+var integer  v1;
+    char  c;
+    integer v2;
 
 procedure f();
 begin
     v1 := 2;
-    c := 'a'
+    c := 'a';
 end
 
 procedure t1();

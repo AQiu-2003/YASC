@@ -2,7 +2,7 @@
 #include<unistd.h>
 #include<stdio.h>   
 #include "main.h"
-#include "analyzer.h"
+#include "symbol.h"
 int yylex();
 %}
 %union{
@@ -77,7 +77,10 @@ DeclarePart:TypeDecpart VarDecpart ProcDecpart{$$=newAst("DeclarePart",3,$1,$2,$
 TypeDecpart:{$$=newAst("TypeDecpart",0,-1);}
     |TypeDec{$$=newAst("TypeDecpart",1,$1);}
 TypeDec:TYPE TypeDecList{$$=newAst("TypeDec",2,$1,$2);}
-TypeDecList:TypeId RELOP TypeDef SEMI TypeDecMore{$$=newAst("TypeDecList",5,$1,$2,$3,$4,$5);}
+TypeDecList:TypeId RELOP TypeDef SEMI TypeDecMore{
+    $$=newAst("TypeDecList",5,$1,$2,$3,$4,$5);
+    newType($1->childs[0]->value.content, $3);
+}
 TypeDecMore:{$$=newAst("TypeDecMore",0,-1);}
     |TypeDecList{$$=newAst("TypeDecMore",1,$1);}
 TypeId:ID{$$=newAst("TypeId",1,$1);}
@@ -104,7 +107,14 @@ IdMore:{$$=newAst("IdMore",0,-1);}
 VarDecpart:{$$=newAst("VarDecpart",0,-1);}
     |VarDec{$$=newAst("VarDecpart",1,$1);}
 VarDec:VAR VarDecList{$$=newAst("VarDec",2,$1,$2);}
-VarDecList:TypeDef VarIdList SEMI VarDecMore{$$=newAst("VarDecList",4,$1,$2,$3,$4);}
+VarDecList:TypeDef VarIdList SEMI VarDecMore {
+        $$=newAst("VarDecList",4,$1,$2,$3,$4);
+        tnode vars[10];
+        int count = moreToArray($2, "ID", "VarIdMore", vars);
+        for(int i = 0; i < count; i++){
+            addSymbol(vars[i]->value.content, $1, var);
+        }
+    }
 VarDecMore:{$$=newAst("VarDecMore",0,-1);}
     |VarDecList{$$=newAst("VarDecMore",1,$1);}
 VarIdList:ID VarIdMore{$$=newAst("VarIdList",2,$1,$2);}

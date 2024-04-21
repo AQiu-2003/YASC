@@ -1,10 +1,25 @@
+#include <ctype.h>
 #include "main.h"
 #include "parser.tab.h"
 #include "tm.h"
-#include "analyzer.h"
+#include "symbol.h"
 
 int hasFault;
 tnode programNode;
+
+char *strupr(char *str) {
+    char *orign=str;
+    for (; *str!='\0'; str++)
+        *str = toupper(*str);
+    return orign;
+}
+bool isToken(tnode node) {
+    char *origin = node->name;
+    char *upper = (char *) malloc(strlen(origin) + 1);
+    strcpy(upper, origin);
+    upper = strupr(upper);
+    return !strcmp(origin, upper);
+}
 
 Ast newAst(char *name, int num, ...) {
     // 生成父节点
@@ -28,13 +43,13 @@ Ast newAst(char *name, int num, ...) {
         temp = va_arg(list, tnode);
         // father->line = temp->line;
         father->childCount = num;
-        if (num == 1 && temp->value.content != NULL) {
-            father->type = temp->type;
-            father->value = temp->value;
-            father->line = temp->line;
-            // 释放temp
-            free(temp);
-        } else {
+//        if (num == 1 && isToken(temp)) {
+//            father->type = temp->type;
+//            father->value = temp->value;
+//            father->line = temp->line;
+//            // 释放temp
+//            free(temp);
+//        } else {
             for (int i = 0; i < num; ++i) {
                 temp->father = father;
                 father->childs[i] = temp;
@@ -46,7 +61,7 @@ Ast newAst(char *name, int num, ...) {
                     break;
                 }
             }
-        }
+//        }
 
 
     } else { //表示当前节点是终结符（叶节点）或者空的语法单元，此时num表示行号（空单元为-1）,将对应的值存入union
@@ -125,7 +140,7 @@ int main(int argc, char **argv) {
     for (; i < argc; i++) {
         // 初始化节点记录列表
         hasFault = 0;
-
+        initSymbol();
         FILE *f = fopen(argv[i], "r");
         if (!f) {
             perror(argv[i]);
