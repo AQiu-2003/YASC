@@ -80,7 +80,7 @@ TypeDecpart:{$$=newAst("TypeDecpart",0,-1);}
 TypeDec:TYPE TypeDecList{$$=newAst("TypeDec",2,$1,$2);}
 TypeDecList:TypeId RELOP TypeDef SEMI TypeDecMore{
     $$=newAst("TypeDecList",5,$1,$2,$3,$4,$5);
-    addSymbol($1->childs[0]->value.content, $3, type);
+    //addSymbol($1->childs[0]->value.content, $3, type);
 }
 TypeDecMore:{$$=newAst("TypeDecMore",0,-1);}
     |TypeDecList{$$=newAst("TypeDecMore",1,$1);}
@@ -110,11 +110,11 @@ VarDecpart:{$$=newAst("VarDecpart",0,-1);}
 VarDec:VAR VarDecList{$$=newAst("VarDec",2,$1,$2);}
 VarDecList:TypeDef VarIdList SEMI VarDecMore {
         $$=newAst("VarDecList",4,$1,$2,$3,$4);
-        tnode vars[10];
-        int count = moreToArray($2, "ID", "VarIdMore", vars);
-        for(int i = 0; i < count; i++){
-            addSymbol(vars[i]->value.content, $1, var);
-        }
+        //tnode vars[10];
+        //int count = moreToArray($2, "ID", "VarIdMore", vars);
+        //for(int i = 0; i < count; i++){
+        //    addSymbol(vars[i]->value.content, $1, var);
+        //}
     }
 VarDecMore:{$$=newAst("VarDecMore",0,-1);}
     |VarDecList{$$=newAst("VarDecMore",1,$1);}
@@ -126,16 +126,16 @@ ProcDecpart:{$$=newAst("ProcDecpart",0,-1);}
     |ProcDec{$$=newAst("ProcDecpart",1,$1);}
 ProcDec:PROCEDURE ProcName LPAREN ParamList RPAREN SEMI ProcDecPart ProcBody ProcDecMore{
     $$=newAst("ProcDec",9,$1,$2,$3,$4,$5,$6,$7,$8,$9);
-    addSymbol($2->childs[0]->value.content, $4, proc);
+    //addSymbol($2->childs[0]->value.content, $4, proc);
 }
 ProcDecMore:{$$=newAst("ProcDecMore",0,-1);}
     |ProcDec{$$=newAst("ProcDecMore",1,$1);}
 ProcName:ID{
     $$=newAst("ProcName",1,$1);
     // 进入新的过程作用域
-    Declare *newScope = initNewDeclare();
-    newScope->parent = currentScope;
-    currentScope = newScope;
+    //Declare *newScope = initNewDeclare();
+    //newScope->parent = currentScope;
+    //currentScope = newScope;
 }
 
 ParamList:{$$=newAst("ParamList",0,-1);}

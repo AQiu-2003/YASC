@@ -3,6 +3,7 @@
 //
 
 #include <stdio.h>
+#include <stdarg.h>
 #include "symbol.h"
 #include "main.h"
 
@@ -33,6 +34,17 @@ int moreToArray(tnode list, char *resName, char *moreName, tnode res[]) {
     return i;
 }
 
+int moreListToArray(tnode list, char *moreName, tnode res[]) {
+    int i = 0;
+    char *baseName = list->name;
+    while(list != NULL) {
+        res[i++] = list;
+        list = findChildByName(list, moreName);
+        list = findChildByName(list, baseName);
+    }
+    return i;
+}
+
 void getAstNodeForDebug(tnode node) {
     if(node == NULL) {
         printf("NULL\n");
@@ -49,4 +61,18 @@ void getAstNodeForDebug(tnode node) {
 //        printf("%s ", node->childs[i]->name);
 //    }
     printf("\n");
+}
+
+tnode getAstNodeByPath(tnode start, unsigned int num, ...) {
+    va_list ap;
+    va_start(ap, num);
+    tnode temp = start;
+    char *nextStep = NULL;
+    for (int i = 0; i < num; ++i) {
+        nextStep = va_arg(ap, char *);
+        temp = findChildByName(temp, nextStep);
+        if(temp == NULL) break;
+    }
+    va_end(ap);
+    return temp;
 }

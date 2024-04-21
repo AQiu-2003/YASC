@@ -3,6 +3,7 @@
 #include "parser.tab.h"
 #include "symbol.h"
 #include "utils.h"
+#include "analyzer.h"
 
 int hasFault;
 tnode programNode;
@@ -68,6 +69,7 @@ Ast newAst(char *name, int num, ...) {
         }
     }
 //    getAstNodeForDebug(father);
+    va_end(list);
     return father;
 }
 
@@ -127,7 +129,6 @@ int main(int argc, char **argv) {
     for (; i < argc; i++) {
         // 初始化节点记录列表
         hasFault = 0;
-        initSymbol();
         FILE *f = fopen(argv[i], "r");
         if (!f) {
             perror(argv[i]);
@@ -138,10 +139,9 @@ int main(int argc, char **argv) {
         fclose(f);
 
         // 遍历所有非子节点的节点
-        if (hasFault)
-            continue;
-        else
-            printf("YASC: No syntax error found.\n");
+        if (hasFault) continue;
+        else printf("YASC: No syntax error found.\n");
+        startAnalysis();
         if (printTree) {
             Preorder(programNode, 0);
         }

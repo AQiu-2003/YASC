@@ -249,9 +249,8 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
             } else {
                 ProcNode *newProcNode = newProc(name, node);
                 newProcNode->innerDeclare = currentScope;
-                currentScope = currentScope->parent;
-                currentScope->procTail->next = newProcNode;
-                currentScope->procTail = newProcNode;
+                currentScope->parent->procTail->next = newProcNode;
+                currentScope->parent->procTail = currentScope->parent->procTail->next;
             }
             break;
     }
