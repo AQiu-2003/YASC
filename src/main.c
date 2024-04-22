@@ -137,7 +137,6 @@ int main(int argc, char **argv) {
         if (printTree) {
             // 刷新输出流
             fflush(stdout);
-            fflush(stderr);
             printf("YASC: Print AST...\n\n");
             Preorder(programNode, 0);
             printf("\n\nYASC: Finish printing AST!\n");

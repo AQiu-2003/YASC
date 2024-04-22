@@ -53,7 +53,7 @@ VarNode *newVar(char *name, tnode decType) {
         else
             search = findTypeInAllScope(decType->child[0]->value.content);
         if (search == NULL) {
-            printf("Error: Type %s not defined.\n", name);
+            fprintf(stderr, "Segmentation fault [line %d]: Type %s not defined.\n", decType->line, decType->value.content);
             return NULL;
         } else {
             res->type = search;
@@ -247,7 +247,7 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
         case var:
             temp = findVar(name, currentScope);
             if ((VarNode *)temp != NULL) {
-                fprintf(stderr, "Segmentation fault: %s already defined\n", name);
+                fprintf(stderr, "Segmentation fault [line %d]: %s already defined\n", node->line, name);
                 return false;
             } else {
                 VarNode *newVarNode = newVar(name, node);
@@ -260,7 +260,7 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
         case type:
             temp = findType(name, currentScope);
             if ((Type *)temp != NULL) {
-                fprintf(stderr, "Segmentation fault: %s already defined\n", name);
+                fprintf(stderr, "Segmentation fault [line %d]: %s already defined\n", node->line, name);
                 return false;
             } else {
                 TypeNode *newTypeNode = newType(name, node);
@@ -269,9 +269,9 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
             }
             break;
         case proc:
-            temp = findProc(name, currentScope);
+            temp = findProc(name, currentScope->parent);
             if ((ProcNode *)temp != NULL) {
-                fprintf(stderr, "Segmentation fault: %s already defined\n", name);
+                fprintf(stderr, "Segmentation fault [line %d]: %s already defined\n", node->father->line, name);
                 return false;
             } else {
                 ProcNode *newProcNode = newProc(name, node);
