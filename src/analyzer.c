@@ -95,10 +95,13 @@ Type *analyzeArray(tnode arrayId, tnode variMore) {
     }
     //shallow check the array range
     // exp -> term
-    int callValue = getAstNodeByPath(exp, 3, "Term", "Factor", "INTC")->value.intValue;
-    if(callValue < res->array->low || callValue > res->array->top) {
-        fprintf(stderr, "Segmentation fault [line %d]: index of array %s out of range.\n", arrayId->line, arrayId->value.content);
-        return NULL;
+    tnode callValueNode = getAstNodeByPath(exp, 3, "Term", "Factor", "INTC");
+    if (callValueNode != NULL) {
+        int callValue = callValueNode->value.intValue;
+        if(callValue < res->array->low || callValue > res->array->top) {
+            fprintf(stderr, "Segmentation fault [line %d]: index of array %s out of range.\n", arrayId->line, arrayId->value.content);
+            return NULL;
+        }
     }
     return res->array->baseType;
 }
