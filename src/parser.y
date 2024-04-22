@@ -156,6 +156,7 @@ ProgramBody:BEGIN1 StmList END{$$=newAst("ProgramBody",3,$1,$2,$3);}
 
 StmList:Stm {$$=newAst("StmList",1,$1);}
     |Stm SEMI StmMore{$$=newAst("StmList",3,$1,$2,$3);}
+    |{$$=newAst("StmList",0,-1);}
 StmMore:{$$=newAst("StmMore",0,-1);}
     |StmList{$$=newAst("StmMore",1,$1);}
 Stm:ConditionalStm{$$=newAst("Stm",1,$1);}

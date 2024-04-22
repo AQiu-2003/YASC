@@ -26,6 +26,9 @@ Type *analyzeRecord(tnode recordId, tnode fieldVar) {
         return NULL;
     }
     Type *res = findTypeInAllScope(recordId->value.content);
+    if(res==NULL){
+        return;
+    }
     if (res->type != record) {
         printf("Segmentation fault [line %d]: variable %s is not a record.\n", recordId->line, recordId->value.content);
         return NULL;
@@ -71,6 +74,9 @@ Type *analyzeArray(tnode arrayId, tnode variMore) {
         return NULL;
     }
     Type *res = findTypeInAllScope(arrayId->value.content);
+    if(res==NULL){
+        return NULL;
+    }
     if (res->type != array) {
         printf("Segmentation fault [line %d]: variable %s is not an array.\n", arrayId->line, arrayId->value.content);
         return NULL;
@@ -189,6 +195,10 @@ Type *analyzeExp(tnode exp) {
 }
 
 bool analyzeRelExp(tnode relExp) {
+    if(relExp==NULL){
+        fprintf(stderr,"Error:Null relational expression node in analyzeRelExp.\n");
+        return false;
+    }
     tnode exp1 = relExp->child[0];
     tnode exp2 = relExp->child[1]->child[1];
     Type *res1 = analyzeExp(exp1);
@@ -229,6 +239,10 @@ bool checkCallStm(tnode procID, tnode argsList) {
 }
 
 void analyzeStatement(tnode stm) {
+    if(stm==NULL){
+        fprintf(stderr, "Error: Null statement node in analyzeStatement.\n");
+        return;
+    }
     char *stmName = stm->child[0]->name;
     if (!strcmp(stmName, "ConditionalStm")) {
         // ConditionalStm:IF RelExp THEN StmList ELSE StmList FI
@@ -262,6 +276,9 @@ void analyzeStatement(tnode stm) {
         // AssignmentRest:VariMore ASSIGN Exp
         if(!strcmp(rest->name, "AssignmentRest")) {
             Type *expType = analyzeExp(rest->child[2]);
+            if(expType==NULL){
+                return;
+            }
             if(id->type->type == integer || id->type->type == character) {
                 if(id->type->type != expType->type) {
                     fprintf(stderr, "Segmentation fault [line %d]: type mismatch in assignment.\n", rest->child[1]->line);
@@ -274,12 +291,18 @@ void analyzeStatement(tnode stm) {
                 }
                 if(id->type->type == array) {
                     Type *arrayType = analyzeArray(stm->child[0], stm->child[1]->child[0]->child[0]);
+                    if(arrayType==NULL){
+                        return;
+                    }
                     if(arrayType->type != expType->type) {
                         fprintf(stderr, "Segmentation fault [line %d]: type mismatch in assignment.\n", rest->child[1]->line);
                         return;
                     }
                 } else if(id->type->type == record) {
                     Type *fieldType = analyzeRecord(stm->child[0], stm->child[1]->child[0]->child[0]->child[1]);
+                    if(fieldType==NULL){
+                        return;
+                    }
                     if(fieldType->type != expType->type) {
                         fprintf(stderr, "Segmentation fault [line %d]: type mismatch in assignment.\n", rest->child[1]->line);
                         return;

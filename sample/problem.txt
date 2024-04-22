@@ -1,0 +1,22 @@
+code1(语义错误123).txt  :  {3.标识符为非期望的标识符}有问题
+			
+code2(语义错误4567).txt  : {4.数组类型下标越界错误}
+                           {5.数组成员变量和域变量的引用不合法}
+                           
+code3(语义错误89,10).txt: {8.过程调用中，形实参类型不匹配}
+			  {9.过程调用中，形实参个数不相同}
+                          10 41行也有点小问题
+code4(语义错误11,12).txt：{11.if和while语句的条件部分不是bool类型}
+			  {12.表达式中运算符的分量的类型不相容}
+			  11 12 都输出两次
+
+c1.txt：
+YASC: Start analysis...
+YASC: No syntax error found.
+Segmentation fault [line 11]: variable a not defined.
+Error:Null relational expression node in analyzeRelExp.
+YASC: Your Analyzer is Successfully Completed!
+common里面的都会有变量未定义的问题
+
+
+	

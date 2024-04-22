@@ -4,6 +4,11 @@ project(YASC C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# 设置构建类型为 Debug，以便包含调试信息
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 

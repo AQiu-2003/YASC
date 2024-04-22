@@ -53,7 +53,7 @@ VarNode *newVar(char *name, tnode decType) {
         else
             search = findTypeInAllScope(decType->child[0]->value.content);
         if (search == NULL) {
-            printf("Error: Type %s not defined.\n", decType->child[0]->value.content);
+            printf("Error: Type %s not defined.\n", name);
             return NULL;
         } else {
             res->type = search;
@@ -248,8 +248,10 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
                 return false;
             } else {
                 VarNode *newVarNode = newVar(name, node);
-                currentScope->varTail->next = newVarNode;
-                currentScope->varTail = newVarNode;
+                if(newVarNode!=NULL){
+                    currentScope->varTail->next = newVarNode;
+                    currentScope->varTail = newVarNode;
+                }
             }
             break;
         case type:

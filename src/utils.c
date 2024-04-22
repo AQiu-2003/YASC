@@ -25,6 +25,9 @@ tnode findChildByName(tnode val, char *name) {
  */
 int moreToArray(tnode list, char *resName, char *moreName, tnode res[]) {
     int i = 0;
+    if(list==NULL){
+        return i;
+    }
     char *baseName = list->name;
     while(findChildByName(list, resName) != NULL) {
         res[i++] = findChildByName(list, resName);
