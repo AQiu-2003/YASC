@@ -13,7 +13,7 @@ for file in ./Sample/$dir/*; do
             # print the file name
             echo -e "\nProcessing file: $file"
             # run the parser on the file
-            ./cmake-build-debug/YASC --no-tree "$file"
+            ./cmake-build-debug/YASC "$file"
         fi
     fi
 done

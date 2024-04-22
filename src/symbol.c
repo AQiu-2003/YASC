@@ -90,7 +90,7 @@ Record * newRecord(tnode decList) {
     // FieldDecList:BaseType IdList SEMI FieldDecMore
     Record *resHead = (Record *) malloc(sizeof(Record));
     Record *resTail = resHead;
-    strcpy(resHead->name, "head");
+    resHead->name = "head";
     resHead->next = NULL;
     while (decList != NULL) {
         tnode ids[10];

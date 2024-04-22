@@ -9,9 +9,11 @@
 
 	#define ASTRETURN(a) \
 	        yylval.type_tnode = newAst(#a, 0, yylineno); \
-	        if(!strcmp(#a, "INTC") || !strcmp(#a, "CHARC") || !strcmp(#a, "ID")) \
-	        printf("%s(%s) ", #a, yytext); \
-	        else printf("%s ", #a); \
+	        if(printToken) { \
+                if((!strcmp(#a, "INTC") || !strcmp(#a, "CHARC") || !strcmp(#a, "ID"))) \
+                printf("%s(%s) ", #a, yytext); \
+                else printf("%s ", #a); \
+            } \
 	        return a
 %}
 
@@ -76,7 +78,7 @@ AERROR .
 
 {SPACE} {}
 {COMMENT} {}
-{EOL} {printf("\n");}
+{EOL} {if(printToken) printf("\n");}
  /*关键字*/
 {PROGRAM} ASTRETURN(PROGRAM);
 {PROCEDURE} ASTRETURN(PROCEDURE);

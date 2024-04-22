@@ -133,6 +133,7 @@ Type *analyzeVariable(tnode var) {
     } else if (res->type->type == record) {
         return analyzeRecord(var->child[0], var->child[1]);
     }
+    return NULL;
 }
 
 
@@ -194,8 +195,8 @@ Type *analyzeExp(tnode exp) {
 }
 
 bool analyzeRelExp(tnode relExp) {
-    if(relExp==NULL){
-        fprintf(stderr,"Segmentation fault: Null relational expression node in analyzeRelExp.\n");
+    if(relExp == NULL){
+        fprintf(stderr, "Segmentation fault: Null relational expression node in analyzeRelExp.\n");
         return false;
     }
     tnode exp1 = relExp->child[0];
@@ -249,15 +250,15 @@ void analyzeStatement(tnode stm) {
         // ConditionalStm:IF RelExp THEN StmList ELSE StmList FI
         // RelExp:Exp OtherRelE
         // OtherRelE:CmpOp Exp
-        if (!analyzeRelExp(stm->child[1])) return;
-        analyzeStmList(stm->child[3]);
-        analyzeStmList(stm->child[5]);
+        if (!analyzeRelExp(stm->child[0]->child[1])) return;
+        analyzeStmList(stm->child[0]->child[3]);
+        analyzeStmList(stm->child[0]->child[5]);
     } else if (!strcmp(stmName, "LoopStm")) {
         // LoopStm:WHILE RelExp DO StmList ENDWH
         // RelExp:Exp OtherRelE
         // OtherRelE:CmpOp Exp
         if (!analyzeRelExp(stm->child[0]->child[1])) return;
-        analyzeStmList(stm->child[3]);
+        analyzeStmList(stm->child[0]->child[3]);
     } else if (!strcmp(stmName, "InputStm")) {
         // InputStm:READ LPAREN Invar RPAREN
         tnode id = stm->child[0]->child[2]->child[0];

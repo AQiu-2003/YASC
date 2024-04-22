@@ -4,10 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>  // 变长参数函数 头文件
+#include <stdbool.h>
 
 // 词法分析
 extern int yylineno;
 extern char *yytext;
+extern bool printToken;
 void yyerror(char *msg);
 void yyrestart(FILE *);
 

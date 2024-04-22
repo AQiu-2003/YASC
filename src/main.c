@@ -6,6 +6,8 @@
 #include "analyzer.h"
 
 int hasFault;
+bool printToken = false;
+bool printTree = false;
 tnode programNode;
 
 Ast newAst(char *name, int num, ...) {
@@ -30,27 +32,17 @@ Ast newAst(char *name, int num, ...) {
         temp = va_arg(list, tnode);
         // father->line = temp->line;
         father->childCount = num;
-//        if (num == 1 && isToken(temp)) {
-//            father->type = temp->type;
-//            father->value = temp->value;
-//            father->line = temp->line;
-//            // 释放temp
-//            free(temp);
-//        } else {
-            for (int i = 0; i < num; ++i) {
-                temp->father = father;
-                father->child[i] = temp;
-                temp = va_arg(list, tnode);
+        for (int i = 0; i < num; ++i) {
+            temp->father = father;
+            father->child[i] = temp;
+            temp = va_arg(list, tnode);
+        }
+        for (int i = 0; i < num; i++) {
+            if (father->child[i]->line != -1) {
+                father->line = father->child[i]->line;
+                break;
             }
-            for (int i = 0; i < num; i++) {
-                if (father->child[i]->line != -1) {
-                    father->line = father->child[i]->line;
-                    break;
-                }
-            }
-//        }
-
-
+        }
     } else { //表示当前节点是终结符（叶节点）或者空的语法单元，此时num表示行号（空单元为-1）,将对应的值存入union
         father->line = va_arg(list, int);
         if (!strcmp(name, "INTC")) {
@@ -113,20 +105,18 @@ void yyerror(char *msg) {
 // bison使用yyparse()进行语法分析，所以需要我们在main函数中调用yyparse()和yyrestart()
 int main(int argc, char **argv) {
     int j;
-    int printTree = 1;
     printf("YASC: Start analysis...\n");
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return 1;
     }
-    int i = 1;
-    if (argc > 2) {
-        if (strcmp(argv[1], "--no-tree") == 0) {
-            printTree = 0;
-            i = 2;
-        }
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "--print-ast")) printTree = true;
+        if (!strcmp(argv[i], "--print-token")) printToken = true;
     }
-    for (; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "--print-ast")) continue;
+        if (!strcmp(argv[i], "--print-token")) continue;
         // 初始化节点记录列表
         hasFault = 0;
         FILE *f = fopen(argv[i], "r");
@@ -134,12 +124,12 @@ int main(int argc, char **argv) {
             perror(argv[i]);
             return 1;
         }
-        printf("YASC: Start parsing file %s...\n\n", argv[i]);
-        printf("YASC: Printing tokens...\n");
+        printf("YASC: Start parsing file %s...\n", argv[i]);
+        if (printToken) printf("YASC: Printing tokens...\n");
         yyrestart(f);
         yyparse();
         fclose(f);
-        printf("\nYASC: Finish printing tokens!\n");
+        if (printToken)  printf("\nYASC: Finish printing tokens!\n");
         // 遍历所有非子节点的节点
         if (hasFault) continue;
         else printf("YASC: No syntax error found.\n");
@@ -147,6 +137,7 @@ int main(int argc, char **argv) {
         if (printTree) {
             // 刷新输出流
             fflush(stdout);
+            fflush(stderr);
             printf("YASC: Print AST...\n\n");
             Preorder(programNode, 0);
             printf("\n\nYASC: Finish printing AST!\n");
