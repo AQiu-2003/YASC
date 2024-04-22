@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
             return 1;
         }
         printf("YASC: Start parsing file %s...\n\n", argv[i]);
-        printf("YASC: Printing tokens...");
+        printf("YASC: Printing tokens...\n");
         yyrestart(f);
         yyparse();
         fclose(f);
@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
             Preorder(programNode, 0);
             printf("\n\nYASC: Finish printing AST!\n");
         }
-        printf("YASC: Finish parsing file %s.\n", argv[i]);
+        printf("YASC: Finish parsing file %s\n", argv[i]);
     }
-    printf("YASC: Finish analysis of all files.\n");
+    printf("YASC: Finish analysis of all files\n");
 }

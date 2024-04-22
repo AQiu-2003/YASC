@@ -218,7 +218,7 @@ bool checkCallStm(tnode procID, tnode argsList) {
     }
     VarNode *param;
     if (procType->paramNum == 0) param = NULL;
-    else param = procType->params;
+    else param = procType->params->next;
     tnode exps[10];
     int expCount = moreToArray(argsList, "Exp", "ActParamMore", exps);
     if (expCount < procType->paramNum) {
@@ -230,9 +230,6 @@ bool checkCallStm(tnode procID, tnode argsList) {
     }
     for (int i = 0; i < expCount; ++i) {
         Type *expType = analyzeExp(exps[i]);
-        if(expType==NULL||param->type==NULL){
-            return false;
-        }
         if (expType->type != param->type->type) {
             fprintf(stderr, "Segmentation fault [line %d]: argument %d of procedure %s has wrong type.\n", exps[i]->line, i + 1, procID->value.content);
             return false;

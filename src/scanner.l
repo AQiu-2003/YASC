@@ -7,7 +7,12 @@
     #include "main.h"
     #include "parser.tab.h"
 
-	#define ASTRETURN(a) yylval.type_tnode=newAst(#a,0,yylineno);if(!strcmp(#a, "INTC")||!strcmp(#a, "CHARC"))printf("%s(%s) ",#a,yytext);else printf("%s ",#a);return a
+	#define ASTRETURN(a) \
+	        yylval.type_tnode = newAst(#a, 0, yylineno); \
+	        if(!strcmp(#a, "INTC") || !strcmp(#a, "CHARC") || !strcmp(#a, "ID")) \
+	        printf("%s(%s) ", #a, yytext); \
+	        else printf("%s ", #a); \
+	        return a
 %}
 
 /*无符号整数*/

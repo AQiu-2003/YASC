@@ -188,24 +188,25 @@ ProcNode *newProc(char *name, tnode paramList) {
     ProcNode *res = (ProcNode *) malloc(sizeof(ProcNode));
     res->name = name;
     res->next = NULL;
+    res->paramNum = 0;
     if(paramList->child[0] == NULL) {
-        res->paramNum = 0;
         res->params = NULL;
     } else {
         tnode params[10];
-        res->paramNum = moreToArray(paramList->child[0], "Param", "ParamMore", params);
+        int paramNum = moreToArray(paramList->child[0], "Param", "ParamMore", params);
         VarNode *paramNode = (VarNode *) malloc(sizeof(VarNode));
         paramNode->name = "head";
         paramNode->type = NULL;
         paramNode->next = NULL;
         res->params = paramNode;
-        for (int i = 0; i < res->paramNum; ++i) {
+        for (int i = 0; i < paramNum; ++i) {
             tnode decType = findChildByName(params[i], "TypeDef");
             tnode ids[10];
             int idCount = moreToArray(findChildByName(params[i], "FormList"), "ID", "FidMore", ids);
 //            if (findChildByName(params[i], "VAR"))
             for (int j = 0; j < idCount; ++j) {
                 VarNode *temp = newVar(ids[j]->value.content, decType);
+                res->paramNum++;
                 paramNode->next = temp;
                 paramNode = temp;
                 // 参数也添加进符号表
