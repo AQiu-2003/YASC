@@ -7,10 +7,12 @@
 #include "symbol.h"
 #include "utils.h"
 
+bool inCall = false;
+
 bool checkIfVarDefined(tnode id) {
     VarNode *temp = findVarInAllScope(id->value.content);
     if (temp == NULL) {
-        printf("Segmentation fault [line %d]: variable %s not defined.\n", id->line, id->value.content);
+        fprintf(stderr, "Segmentation fault [line %d]: variable %s not defined.\n", id->line, id->value.content);
         return false;
     }
     return true;
@@ -25,14 +27,12 @@ Type *analyzeRecord(tnode recordId, tnode fieldVar) {
     if (!checkIfVarDefined(recordId)) {
         return NULL;
     }
-    Type *res = findTypeInAllScope(recordId->value.content);
-    if(res==NULL){
+    VarNode *recordVar = findVarInAllScope(recordId->value.content);
+    if (recordVar->type->type != record) {
+        fprintf(stderr, "Segmentation fault [line %d]: variable %s is not a record.\n", recordId->line, recordId->value.content);
         return NULL;
     }
-    if (res->type != record) {
-        printf("Segmentation fault [line %d]: variable %s is not a record.\n", recordId->line, recordId->value.content);
-        return NULL;
-    }
+    Type *res = recordVar->type;
     tnode id = fieldVar->child[0];
     Record *temp = res->record->next;
     while(temp != NULL) {
@@ -42,19 +42,19 @@ Type *analyzeRecord(tnode recordId, tnode fieldVar) {
         temp = temp->next;
     }
     if(temp == NULL) {
-        printf("Segmentation fault [line %d]: field %s not defined in record %s.\n", id->line, id->value.content, recordId->value.content);
+        fprintf(stderr, "Segmentation fault [line %d]: field %s not defined in record %s.\n", id->line, id->value.content, recordId->value.content);
         return NULL;
     }
     tnode fieldVarMode = fieldVar->child[1];
     if(fieldVarMode->childCount == 0) {
         if(temp->type->type == array) {
-            printf("Segmentation fault [line %d]: field %s is an array.\n", id->line, id->value.content);
+            fprintf(stderr, "Segmentation fault [line %d]: field %s is an array.\n", id->line, id->value.content);
             return NULL;
         }
         return temp->type;
     } else {
         if(temp->type->type != array) {
-            printf("Segmentation fault [line %d]: field %s is not an array.\n", id->line, id->value.content);
+            fprintf(stderr, "Segmentation fault [line %d]: field %s is not an array.\n", id->line, id->value.content);
             return NULL;
         }
         Type *expType = analyzeExp(fieldVarMode->child[1]);
@@ -62,7 +62,7 @@ Type *analyzeRecord(tnode recordId, tnode fieldVar) {
             return NULL;
         }
         if(expType->type != integer) {
-            printf("Segmentation fault [line %d]: index of array %s is not an integer.\n", id->line, id->value.content);
+            fprintf(stderr, "Segmentation fault [line %d]: index of array %s is not an integer.\n", id->line, id->value.content);
             return NULL;
         }
         return temp->type->array->baseType;
@@ -78,7 +78,7 @@ Type *analyzeArray(tnode arrayId, tnode variMore) {
         return NULL;
     }
     if (res->type != array) {
-        printf("Segmentation fault [line %d]: variable %s is not an array.\n", arrayId->line, arrayId->value.content);
+        fprintf(stderr, "Segmentation fault [line %d]: variable %s is not an array.\n", arrayId->line, arrayId->value.content);
         return NULL;
     }
     tnode exp = variMore->child[1];
@@ -87,14 +87,14 @@ Type *analyzeArray(tnode arrayId, tnode variMore) {
         return NULL;
     }
     if(expType->type != integer) {
-        printf("Segmentation fault [line %d]: index of array %s is not an integer.\n", arrayId->line, arrayId->value.content);
+        fprintf(stderr, "Segmentation fault [line %d]: index of array %s is not an integer.\n", arrayId->line, arrayId->value.content);
         return NULL;
     }
     //shallow check the array range
     // exp -> term
     int callValue = getAstNodeByPath(exp, 3, "Term", "Factor", "INTC")->value.intValue;
     if(callValue < res->array->low || callValue > res->array->top) {
-        printf("Segmentation fault [line %d]: index of array %s out of range.\n", arrayId->line, arrayId->value.content);
+        fprintf(stderr, "Segmentation fault [line %d]: index of array %s out of range.\n", arrayId->line, arrayId->value.content);
         return NULL;
     }
     return res->array->baseType;
@@ -120,6 +120,7 @@ Type *analyzeVariable(tnode var) {
         } else return res->type;
     } else if (res->type->type == array) {
         if(var->child[1]->childCount == 0) {
+            if(inCall) return res->type;
             fprintf(stderr, "Segmentation fault [line %d]: variable %s is an array.\n", var->child[0]->line, var->child[0]->value.content);
             return NULL;
         }
@@ -131,7 +132,12 @@ Type *analyzeVariable(tnode var) {
         }
         return res->type->array->baseType;
     } else if (res->type->type == record) {
-        return analyzeRecord(var->child[0], var->child[1]);
+        if(var->child[1]->childCount == 0) {
+            if(inCall) return res->type;
+            fprintf(stderr, "Segmentation fault [line %d]: variable %s is a record.\n", var->child[0]->line, var->child[0]->value.content);
+            return NULL;
+        }
+        return analyzeRecord(var->child[0],var->child[1]->child[1]);
     }
     return NULL;
 }
@@ -312,6 +318,7 @@ void analyzeStatement(tnode stm) {
                 }
             }
         } else if (!strcmp(rest->name, "CallStmRest")) {
+            inCall = true;
             ProcNode *proc = findProcInAllScope(stm->child[0]->value.content);
             if (proc == NULL) {
                 fprintf(stderr, "Segmentation fault [line %d]: procedure %s not defined.\n", stm->child[0]->line, stm->child[0]->value.content);
@@ -319,6 +326,7 @@ void analyzeStatement(tnode stm) {
             }
             // CallStmRest:LPAREN ActParamList RPAREN
             if (!checkCallStm(stm->child[0], rest->child[1])) return;
+            inCall = false;
         }
     }
 }
