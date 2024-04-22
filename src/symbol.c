@@ -94,14 +94,20 @@ Record * newRecord(tnode decList) {
     resHead->next = NULL;
     while (decList != NULL) {
         tnode ids[10];
-        char *baseType = decList->child[0]->child[0]->value.content; // DecList -> BaseType -> INTEGER/CHAR
+        char *recordType = decList->child[0]->child[0]->value.content; // DecList -> BaseType -> INTEGER/CHAR
         int idCount = moreToArray(decList->child[1], "ID", "IdMore", ids);
         Record *temp = resTail;
         for (int i = 0; i < idCount; i++) {
             temp->next = (Record *) malloc(sizeof(Record));
             temp = temp->next;
             temp->name = ids[i]->value.content;
-            temp->type = findType(baseType, globalScope);
+            if (!strcmp(recordType, "Array")) {
+                char *newName = (char *) malloc(sizeof(char) * 20);
+                sprintf(newName, "%s-struct-%d", temp->name, rand());
+                temp->type = newType(newName, decList->father)->value;
+            } else {
+                temp->type = findType(recordType, globalScope);
+            }
         }
         temp->next = NULL;
         decList = decList->child[3]->child[0];
@@ -130,7 +136,7 @@ TypeNode *newType(char *name, tnode decType) {
         temp = temp->child[0]; // TypeDef -> BaseType -> INTEGER/CHAR
         if (!strcmp(temp->name, "INTEGER")) res->type = integer;
         if (!strcmp(temp->name, "CHAR")) res->type = character;
-    } else if (!strcmp(temp->name, "StructureType")) {
+    } else if (!strcmp(temp->name, "StructureType") || !strcmp(temp->name, "FieldDecList")) {
         temp = temp->child[0]; // TypeDef -> StructureType -> RecType/ArrayType
         if (!strcmp(temp->name, "RecType")) {
             res->type = record;
@@ -138,6 +144,10 @@ TypeNode *newType(char *name, tnode decType) {
         } else if (!strcmp(temp->name, "ArrayType")) {
             res->type = array;
             res->array = newArray(temp);
+            if (res->array->low > res->array->top) {
+                fprintf(stderr, "Segmentation fault [line %d]: Array range error, low > top.\n", temp->line);
+                return NULL;
+            }
         }
     } else if (!strcmp(temp->name, "ID")) {
         // custom type
@@ -264,8 +274,10 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
                 return false;
             } else {
                 TypeNode *newTypeNode = newType(name, node);
-                currentScope->typeTail->next = newTypeNode;
-                currentScope->typeTail = newTypeNode;
+                if(newTypeNode != NULL) {
+                    currentScope->typeTail->next = newTypeNode;
+                    currentScope->typeTail = newTypeNode;
+                }
             }
             break;
         case proc:
@@ -275,9 +287,11 @@ bool addSymbol(char *name, tnode node, enum symbolType_ symbolType) {
                 return false;
             } else {
                 ProcNode *newProcNode = newProc(name, node);
-                newProcNode->innerDeclare = currentScope;
-                currentScope->parent->procTail->next = newProcNode;
-                currentScope->parent->procTail = currentScope->parent->procTail->next;
+                if(newProcNode != NULL) {
+                    newProcNode->innerDeclare = currentScope;
+                    currentScope->parent->procTail->next = newProcNode;
+                    currentScope->parent->procTail = currentScope->parent->procTail->next;
+                }
             }
             break;
     }

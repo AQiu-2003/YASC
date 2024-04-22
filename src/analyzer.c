@@ -73,7 +73,8 @@ Type *analyzeArray(tnode arrayId, tnode variMore) {
     if (!checkIfVarDefined(arrayId)) {
         return NULL;
     }
-    Type *res = findTypeInAllScope(arrayId->value.content);
+    VarNode *arrNode = findVarInAllScope(arrayId->value.content);
+    Type *res = arrNode->type;
     if(res==NULL){
         return NULL;
     }
@@ -82,7 +83,9 @@ Type *analyzeArray(tnode arrayId, tnode variMore) {
         return NULL;
     }
     tnode exp = variMore->child[1];
+    inCall = true;
     Type *expType = analyzeExp(exp);
+    inCall = false;
     if(expType == NULL) {
         return NULL;
     }
