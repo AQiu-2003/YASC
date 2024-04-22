@@ -10,5 +10,6 @@
 
 extern void startAnalysis();
 extern Type *analyzeExp(tnode exp);
+void analyzeStmList(tnode stmList);
 
 #endif //YASC_ANALYZER_H
