@@ -24,10 +24,9 @@ tnode findChildByName(tnode val, char *name) {
  *      |COMMA VarIdList
  */
 int moreToArray(tnode list, char *resName, char *moreName, tnode res[]) {
+
     int i = 0;
-    if(list==NULL){
-        return i;
-    }
+    if(list == NULL) return 0;
     char *baseName = list->name;
     while(findChildByName(list, resName) != NULL) {
         res[i++] = findChildByName(list, resName);

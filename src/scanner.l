@@ -7,7 +7,7 @@
     #include "main.h"
     #include "parser.tab.h"
 
-	#define ASTRETURN(a) yylval.type_tnode=newAst(#a,0,yylineno);return a
+	#define ASTRETURN(a) yylval.type_tnode=newAst(#a,0,yylineno);if(!strcmp(#a, "INTC")||!strcmp(#a, "CHARC"))printf("%s(%s) ",#a,yytext);else printf("%s ",#a);return a
 %}
 
 /*无符号整数*/
@@ -71,7 +71,7 @@ AERROR .
 
 {SPACE} {}
 {COMMENT} {}
-{EOL} {}
+{EOL} {printf("\n");}
  /*关键字*/
 {PROGRAM} ASTRETURN(PROGRAM);
 {PROCEDURE} ASTRETURN(PROCEDURE);

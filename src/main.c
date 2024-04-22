@@ -134,18 +134,24 @@ int main(int argc, char **argv) {
             perror(argv[i]);
             return 1;
         }
+        printf("YASC: Start parsing file %s...\n\n", argv[i]);
+        printf("YASC: Printing tokens...");
         yyrestart(f);
         yyparse();
         fclose(f);
-
+        printf("\nYASC: Finish printing tokens!\n");
         // 遍历所有非子节点的节点
         if (hasFault) continue;
         else printf("YASC: No syntax error found.\n");
         startAnalysis();
         if (printTree) {
+            // 刷新输出流
+            fflush(stdout);
+            printf("YASC: Print AST...\n\n");
             Preorder(programNode, 0);
+            printf("\n\nYASC: Finish printing AST!\n");
         }
-
+        printf("YASC: Finish parsing file %s.\n", argv[i]);
     }
-    printf("YASC: Finish analysis!\n");
+    printf("YASC: Finish analysis of all files.\n");
 }

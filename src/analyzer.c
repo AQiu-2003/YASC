@@ -27,7 +27,7 @@ Type *analyzeRecord(tnode recordId, tnode fieldVar) {
     }
     Type *res = findTypeInAllScope(recordId->value.content);
     if(res==NULL){
-        return;
+        return NULL;
     }
     if (res->type != record) {
         printf("Segmentation fault [line %d]: variable %s is not a record.\n", recordId->line, recordId->value.content);
@@ -108,17 +108,17 @@ Type *analyzeArray(tnode arrayId, tnode variMore) {
  *          |DOT FieldVar
  */
 Type *analyzeVariable(tnode var) {
-    Type *res = findTypeInAllScope(var->child[0]->value.content);
+    VarNode *res = findVarInAllScope(var->child[0]->value.content);
     if (res == NULL) {
         fprintf(stderr, "Segmentation fault [line %d]: variable %s not defined.\n", var->child[0]->line, var->child[0]->value.content);
         return NULL;
     }
-    if (res->type == integer || res->type == character) {
+    if (res->type->type == integer || res->type->type == character) {
         if(var->child[1]->childCount != 0) {
             fprintf(stderr, "Segmentation fault [line %d]: variable %s is not an array or record.\n", var->child[0]->line, var->child[0]->value.content);
             return NULL;
-        }
-    } else if (res->type == array) {
+        } else return res->type;
+    } else if (res->type->type == array) {
         if(var->child[1]->childCount == 0) {
             fprintf(stderr, "Segmentation fault [line %d]: variable %s is an array.\n", var->child[0]->line, var->child[0]->value.content);
             return NULL;
@@ -129,11 +129,10 @@ Type *analyzeVariable(tnode var) {
             fprintf(stderr, "Segmentation fault [line %d]: array index must be integer.\n", var->child[1]->child[1]->line);
             return NULL;
         }
-        res = res->array->baseType;
-    } else if (res->type == record) {
-        res = analyzeRecord(var->child[0], var->child[1]);
+        return res->type->array->baseType;
+    } else if (res->type->type == record) {
+        return analyzeRecord(var->child[0], var->child[1]);
     }
-    return res;
 }
 
 
@@ -196,7 +195,7 @@ Type *analyzeExp(tnode exp) {
 
 bool analyzeRelExp(tnode relExp) {
     if(relExp==NULL){
-        fprintf(stderr,"Error:Null relational expression node in analyzeRelExp.\n");
+        fprintf(stderr,"Segmentation fault: Null relational expression node in analyzeRelExp.\n");
         return false;
     }
     tnode exp1 = relExp->child[0];
@@ -217,7 +216,9 @@ bool checkCallStm(tnode procID, tnode argsList) {
         fprintf(stderr, "Segmentation fault [line %d]: procedure %s not defined in current scope.\n", procID->line, procID->value.content);
         return false;
     }
-    VarNode *param = procType->params->next;
+    VarNode *param;
+    if (procType->paramNum == 0) param = NULL;
+    else param = procType->params;
     tnode exps[10];
     int expCount = moreToArray(argsList, "Exp", "ActParamMore", exps);
     if (expCount < procType->paramNum) {
@@ -255,7 +256,7 @@ void analyzeStatement(tnode stm) {
         // LoopStm:WHILE RelExp DO StmList ENDWH
         // RelExp:Exp OtherRelE
         // OtherRelE:CmpOp Exp
-        if (!analyzeRelExp(stm->child[1])) return;
+        if (!analyzeRelExp(stm->child[0]->child[1])) return;
         analyzeStmList(stm->child[3]);
     } else if (!strcmp(stmName, "InputStm")) {
         // InputStm:READ LPAREN Invar RPAREN
@@ -267,14 +268,14 @@ void analyzeStatement(tnode stm) {
     } else if (!strcmp(stmName, "ReturnStm")) {
         return;
     } else if (!strcmp(stmName, "ID")) {    // Stm: ID AssCall(AssignmentRest/CallStmRest)
-        VarNode *id = findVarInAllScope(stm->child[0]->value.content);
-        if (id == NULL) {
-            fprintf(stderr, "Segmentation fault [line %d]: variable %s is not defined.\n", stm->child[0]->line, stm->child[0]->value.content);
-            return;
-        }
         tnode rest = stm->child[1]->child[0];
         // AssignmentRest:VariMore ASSIGN Exp
         if(!strcmp(rest->name, "AssignmentRest")) {
+            VarNode *id = findVarInAllScope(stm->child[0]->value.content);
+            if (id == NULL) {
+                fprintf(stderr, "Segmentation fault [line %d]: variable %s not defined.\n", stm->child[0]->line, stm->child[0]->value.content);
+                return;
+            }
             Type *expType = analyzeExp(rest->child[2]);
             if(expType==NULL){
                 return;
@@ -310,6 +311,11 @@ void analyzeStatement(tnode stm) {
                 }
             }
         } else if (!strcmp(rest->name, "CallStmRest")) {
+            ProcNode *proc = findProcInAllScope(stm->child[0]->value.content);
+            if (proc == NULL) {
+                fprintf(stderr, "Segmentation fault [line %d]: procedure %s not defined.\n", stm->child[0]->line, stm->child[0]->value.content);
+                return;
+            }
             // CallStmRest:LPAREN ActParamList RPAREN
             if (!checkCallStm(stm->child[0], rest->child[1])) return;
         }
@@ -369,5 +375,5 @@ void startAnalysis() {
     analyzeDeclarePart(globeDeclare);
     tnode programStmList = getAstNodeByPath(programNode, 2, "ProgramBody", "StmList");
     analyzeStmList(programStmList);
-    printf("YASC: Your Analyzer is Successfully Completed!\n");
+    printf("YASC: Segmentation analysis finished.\n");
 }

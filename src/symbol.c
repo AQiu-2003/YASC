@@ -195,19 +195,21 @@ ProcNode *newProc(char *name, tnode paramList) {
         tnode params[10];
         res->paramNum = moreToArray(paramList->child[0], "Param", "ParamMore", params);
         VarNode *paramNode = (VarNode *) malloc(sizeof(VarNode));
-        paramNode->name = "param";
+        paramNode->name = "head";
         paramNode->type = NULL;
         paramNode->next = NULL;
         res->params = paramNode;
         for (int i = 0; i < res->paramNum; ++i) {
             tnode decType = findChildByName(params[i], "TypeDef");
             tnode ids[10];
-            int idCount = moreToArray(findChildByName(params[i], "FromList"), "ID", "FidMore", ids);
+            int idCount = moreToArray(findChildByName(params[i], "FormList"), "ID", "FidMore", ids);
 //            if (findChildByName(params[i], "VAR"))
             for (int j = 0; j < idCount; ++j) {
                 VarNode *temp = newVar(ids[j]->value.content, decType);
                 paramNode->next = temp;
                 paramNode = temp;
+                // 参数也添加进符号表
+                addSymbol(ids[j]->value.content, decType, var);
             }
         }
     }
