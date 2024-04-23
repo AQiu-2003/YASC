@@ -8,7 +8,14 @@
     #include "parser.tab.h"
 	/*生成的AST节点存储在 yylval 变量中，这是 Bison 和 Flex 共享的联合数据结构，用来传递词法和语法值。
 	在 Bison 中，当识别到一个规则时，它会使用 yylval 中存储的信息来执行相应的动作代码。*/
-	#define ASTRETURN(a) yylval.type_tnode=newAst(#a,0,yylineno);return a
+	#define ASTRETURN(a) \
+            yylval.type_tnode = newAst(#a, 0, yylineno); \
+            if(printToken) { \
+                if((!strcmp(#a, "INTC") || !strcmp(#a, "CHARC") || !strcmp(#a, "ID"))) \
+                printf("%s(%s) ", #a, yytext); \
+                else printf("%s ", #a); \
+            } \
+            return a
 %}
 
 /*无符号整数*/
@@ -70,11 +77,11 @@ AERROR .
 
 %%
 
-/*对于空白符、注释和换行，没有特定操作，忽略*/
+ /*对于空白符、注释和换行，没有特定操作，忽略*/
 {SPACE} {}
 {COMMENT} {}
-{EOL} {}
-/*保留字、符号、标识符等，创建一个新的AST节点并返回相应的标记*/
+{EOL} {if(printToken) printf("\n");}
+ /*保留字、符号、标识符等，创建一个新的AST节点并返回相应的标记*/
  /*关键字*/
 {PROGRAM} ASTRETURN(PROGRAM);
 {PROCEDURE} ASTRETURN(PROCEDURE);
